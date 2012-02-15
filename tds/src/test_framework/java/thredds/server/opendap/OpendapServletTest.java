@@ -44,6 +44,7 @@ public class OpendapServletTest {
 	@Before
 	public void setUp() throws Exception {
 		
+		
 		tdsContext.init(servletContext);
 		tdsDRH.registerConfigListener( new RestrictedAccessConfigListener() );
 		tdsDRH.init();
