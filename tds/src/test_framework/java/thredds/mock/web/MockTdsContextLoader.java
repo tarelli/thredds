@@ -10,7 +10,6 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.support.AbstractContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import thredds.server.config.CdmInit;
 import thredds.server.config.TdsContext;

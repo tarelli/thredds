@@ -10,11 +10,12 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import thredds.mock.web.MockTdsContextLoader;
 import thredds.server.config.HtmlConfig;
 import thredds.server.config.TdsContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/applicationContext-tdsConfig.xml"})
+@ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"}, loader=MockTdsContextLoader.class)
 public class HtmlWriterTest {
 
 	@Autowired
@@ -24,13 +25,14 @@ public class HtmlWriterTest {
 	private HtmlConfig htmlConfig;
 	
 	@Autowired
-	HtmlWriter htmlWriter;  
+	HtmlWriter htmlWriter;
 	
+	@Autowired
 	private MockServletContext servletContext; 
 	
 	@Before
 	public void setUp() throws Exception {
-		servletContext =  new MockServletContext();
+		
 		tdsContext.init(servletContext);
 	}
 
