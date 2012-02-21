@@ -25,6 +25,7 @@ _notes
 **/.classpath
 **/.project
 **/.settings/
+**/bin/
 *~
 
 # Ignore default content directory for mock servlets

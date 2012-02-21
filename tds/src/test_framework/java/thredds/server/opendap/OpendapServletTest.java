@@ -16,14 +16,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import thredds.mock.web.MockTdsContextLoader;
-import thredds.mock.web.MockWebApplication;
 import thredds.server.config.TdsContext;
 import thredds.servlet.DataRootHandler;
 import thredds.servlet.RestrictedAccessConfigListener;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"},loader=MockTdsContextLoader.class)
-//@MockWebApplication(name="thredds")
 public class OpendapServletTest {
 
 	@Autowired

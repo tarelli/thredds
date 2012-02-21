@@ -1,6 +1,5 @@
 package thredds.server.config;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Before;
@@ -11,25 +10,22 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import thredds.mock.web.MockWebApplication;
-import thredds.mock.web.MockWebApplicationContextLoader;
+import thredds.mock.web.MockTdsContextLoader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/applicationContext-tdsConfig.xml"},loader=MockWebApplicationContextLoader.class)
-@MockWebApplication(name="thredds")
-//@ContextConfiguration(locations={"/applicationContext-tdsConfig.xml"})
+@ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"},loader=MockTdsContextLoader.class)
 public class TdsContextTest {
 
 	@Autowired
 	private TdsContext tdsContext;
 	
-
+	@Autowired
 	private MockServletContext servletContext; 
 	
 	@Before
 	public void setUp() throws Exception {
 		//ServletContext to init the TdsContext
-		servletContext =  new MockServletContext();
+		//servletContext =  new MockServletContext();
 	}
 
 	@Test
