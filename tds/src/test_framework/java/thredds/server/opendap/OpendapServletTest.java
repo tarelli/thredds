@@ -15,26 +15,17 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import thredds.mock.web.MockTdsContextLoader;
 import thredds.mock.web.MockWebApplication;
-import thredds.mock.web.MockWebApplicationContextLoader;
 import thredds.server.config.TdsContext;
 import thredds.servlet.DataRootHandler;
 import thredds.servlet.RestrictedAccessConfigListener;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/applicationContext-tdsConfig.xml"},loader=MockWebApplicationContextLoader.class)
-@MockWebApplication(name="thredds")
+@ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"},loader=MockTdsContextLoader.class)
+//@MockWebApplication(name="thredds")
 public class OpendapServletTest {
 
-	@Autowired
-	private TdsContext tdsContext;
-	
-	@Autowired
-	private DataRootHandler tdsDRH;
-	
-	@Autowired
-	private MockServletContext servletContext;
-	
 	@Autowired
 	private MockServletConfig servletConfig;
 	
@@ -44,13 +35,6 @@ public class OpendapServletTest {
 	@Before
 	public void setUp() throws Exception {
 		
-		
-		tdsContext.init(servletContext);
-		tdsDRH.registerConfigListener( new RestrictedAccessConfigListener() );
-		tdsDRH.init();
-		DataRootHandler.setInstance( tdsDRH );
-		//TODO
-		//Create the servlet in a specific ApplicationContextLoader for opendap
 		opendapServlet =new OpendapServlet();
 		opendapServlet.init(servletConfig);
 		opendapServlet.init();

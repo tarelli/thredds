@@ -135,6 +135,18 @@
 	</developers>
 
 	<!-- =========================================================== 
+			Profiles 
+		=========================================================== -->
+	<profiles>
+		<profile>
+			<id>integration-test</id>
+			<modules>
+				<module>it</module>
+			</modules>
+		</profile>	
+	</profiles>
+
+	<!-- =========================================================== 
 			Dependency Management If a POM declares one of those dependencies, then it will use 
 			the version specified here. Otherwise, those dependencies are ignored. Reference: 
 			http://repo1.maven.org/maven2/ 
@@ -144,7 +156,7 @@
 			<id>thredds-releases</id>
 			<name>THREDDS Releases</name>
 			<url>http://artifacts.unidata.ucar.edu:8081/content/repositories/thredds-releases</url>
-		</repository>
+		</repository>		
 		<snapshotRepository>
 			<id>thredds-snapshots</id>
 			<name>THREDDS Snapshots</name>
@@ -157,6 +169,10 @@
 			<name>THREDDS</name>
 			<url>http://artifacts.unidata.ucar.edu:8081/content/repositories/thredds/</url>
 		</repository>
+		<repository>
+			<id>thredds-3rdparty</id>
+			<url>http://artifacts.unidata.ucar.edu:8081/content/repository/thredds-3rdparty/</url>
+		</repository>		
 	</repositories>
 	<dependencyManagement>
 		<dependencies>
@@ -165,6 +181,17 @@
 				<artifactId>servlet-api</artifactId>
 				<version>${javax.servlet.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>${javax.servlet.jstl.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>taglibs</groupId>
+				<artifactId>standard</artifactId>
+				<version>${taglibs.version}</version>
+			</dependency>					
+				
 			<dependency>
 				<groupId>net.jcip</groupId>
 				<artifactId>jcip-annotations</artifactId>
@@ -186,6 +213,11 @@
 				<version>${org.slf4j.version}</version>
 				<scope>runtime</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>			
 			<dependency>  <!-- Should never be needed at compile time. -->
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
@@ -210,6 +242,26 @@
 				<version>${commons-httpclient.version}</version>
 				<!-- Transitive dependencies: commons-codec 1.2 and commons-logging 1.0.4 -->
 			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>${commons-logging.version}</version>
+			</dependency>						
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-core</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>									
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-webmvc</artifactId>
@@ -253,6 +305,22 @@
 				<artifactId>visad</artifactId>
 				<version>${edu.wisc.version}</version>
 			</dependency>
+        	<dependency>
+        		<groupId>jfree</groupId>
+        		<artifactId>jfreechart</artifactId>
+        		<version>${jfree.version}</version>
+        	</dependency>
+			<dependency>
+				<groupId>jfree</groupId>
+				<artifactId>jcommon</artifactId>
+				<version>${jfree.jcommon.version}</version>
+			</dependency>			        			        	        	
+			<dependency>
+				<groupId>com.jgoodies</groupId>
+				<artifactId>forms</artifactId>
+				<version>${com.jgoodies.version}</version>
+			</dependency>
+
 
 			<!-- THREDDS - START -->
 			<dependency>
@@ -325,15 +393,31 @@
 				<artifactId>visad</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			
+			<!-- 
+				We build the THREDDS war with the option attachClasses enabled so we have two possible dependencies here:				 
+				 * war ->  edu.ucar.thredds-{project.version}.war
+				 * jar ->  edu.ucar.thredds-{project.version}-classes.jar
+			 -->
+			<!-- war dependencie -->
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>thredds</artifactId>
+				<version>${project.version}</version>
+				<type>war</type>
+				<!-- scope>provided</scope-->				
+			</dependency>
+			
+			<!-- jar dependencie -->
 			<dependency>
 				<groupId>${project.groupId}</groupId>
 				<artifactId>thredds</artifactId>
 				<version>${project.version}</version>
 				<classifier>classes</classifier>
-				<!-- scope>provided</scope-->
-				<type>war</type>
-			</dependency>
-
+				<type>jar</type>				
+				<!-- scope>provided</scope-->				
+			</dependency>			
+			<!--  -->
 		</dependencies>
 	</dependencyManagement>
 
@@ -464,13 +548,15 @@
 		<module>opendap</module>
 		<module>tds</module>
 		<module>visad</module>
-    	<module>it</module>
+    	<!-- module>it</module-->
   </modules>
 
 	<properties>
 		<visad.version>2011-08-22</visad.version>  <!-- was 2010-08-09, other options 2011-05-12 or 2011-08-22 -->
 
 		<javax.servlet.version>2.5</javax.servlet.version>
+		<javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+		<taglibs.version>1.1.2</taglibs.version>
 		<net.jcip.version>1.0</net.jcip.version>
 		<org.quartz-scheduler.version>2.1.1</org.quartz-scheduler.version>
 		<org.slf4j.version>1.6.4</org.slf4j.version>
@@ -487,11 +573,15 @@
 		<log4j.version>1.2.16</log4j.version>
 		<commons-fileupload.version>1.2.1</commons-fileupload.version>
 		<commons-io.version>1.4</commons-io.version>
+		<commons-logging.version>1.1.1</commons-logging.version>
 		<cas.version>2.1.1</cas.version>
 		<oro.version>2.0.8</oro.version>
 		<uk.ac.rdg.rersc.version>1.0.tds.4.2.20110419.2059</uk.ac.rdg.rersc.version>
 		<org.geotoolkit.version>3.04</org.geotoolkit.version>
 		<org.apache.tomcat.version>6.0.33</org.apache.tomcat.version>
+		<jfree.version>1.0.13</jfree.version>
+		<com.jgoodies.version>1.0.7</com.jgoodies.version>
+		<jfree.jcommon.version>1.0.15</jfree.jcommon.version>
 		
 		<!-- Plugins versions -->
 		<maven-release-plugin.version>2.2.2</maven-release-plugin.version>

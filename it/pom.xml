@@ -134,12 +134,19 @@
       <scope>test</scope>
     </dependency>
     
+    <!-- thredds dependencies are not needed jet. Cargo takes the thredds.war from the tds/target directory --> 
     <!-- dependency>
       <groupId>edu.ucar</groupId>
-      <artifactId>thredds</artifactId>
-      <version>${project.version}</version>     
+      <artifactId>thredds</artifactId>          
       <type>war</type>
-    </dependency-->
+    </dependency>
+    
+    <dependency>
+      <groupId>edu.ucar</groupId>
+      <artifactId>thredds</artifactId>          
+      <type>jar</type>
+      <classifier>classes</classifier>
+    </dependency-->    
     
     <dependency>
       <groupId>edu.ucar</groupId>
@@ -163,6 +170,10 @@
     	<!-- this is a new project so setting the testSourceDirectory to its default -->
     	<testSourceDirectory>src/test/java</testSourceDirectory>
     	<plugins>
+    		<!-- 
+    			In a pom packaging project the compiler and the test plugins are not triggered so we 
+    			set up the specific configuration to trigger them.  
+    		-->
     		<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
