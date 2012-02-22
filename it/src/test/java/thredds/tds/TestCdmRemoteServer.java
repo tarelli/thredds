@@ -131,7 +131,7 @@ public class TestCdmRemoteServer extends TestCase {
     }
   }
 
-  public void testCompareWithFile() throws IOException {
+ /* public void testCompareWithFile() throws IOException {
     final String urlPrefix = CdmRemote.SCHEME+"http://localhost:8081/thredds/cdmremote/opendapTest/";
     final String dirName = TestAll.cdmUnitTestDir + "tds/opendap/";  // read all files from this dir
 
@@ -149,7 +149,7 @@ public class TestCdmRemoteServer extends TestCase {
         return 1;
       }
     });
-  }
+  }*/
 
 
 }

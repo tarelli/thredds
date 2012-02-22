@@ -156,16 +156,15 @@
     <dependency>
       <groupId>edu.ucar</groupId>
       <artifactId>opendap</artifactId>
-    </dependency>            
+    </dependency>
+    
+	<dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>       
+    </dependency>                
               
   </dependencies>
   
-  <!-- ===========================================================
-           Build configuration
-
-           We declare a non-existant test directory as a dirty trick
-           for skiping completly the tests, including compilation.
-       =========================================================== -->
     <build>
     	<!-- this is a new project so setting the testSourceDirectory to its default -->
     	<testSourceDirectory>src/test/java</testSourceDirectory>
@@ -242,7 +241,7 @@
             	</container>
             	<configuration>
             	    <properties>
-            	    	<cargo.jvmargs>-Dtds.content.root.path="/home/mhermida/tds_workspace/thredds/tds/src/test/data" -Xmx1024m -server</cargo.jvmargs>
+            	    	<cargo.jvmargs>-Dtds.content.root.path="/share/testcatalogs/content" -Xmx1024m -server</cargo.jvmargs>
             	    	<cargo.servlet.port>8081</cargo.servlet.port>
             	    	<cargo.tomcat.ajp.port>8010</cargo.tomcat.ajp.port>
             	    	<cargo.tomcat.shutdown.port>8006</cargo.tomcat.shutdown.port>
