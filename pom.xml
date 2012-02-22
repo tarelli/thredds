@@ -172,7 +172,12 @@
 		<repository>
 			<id>thredds-3rdparty</id>
 			<url>http://artifacts.unidata.ucar.edu:8081/content/repository/thredds-3rdparty/</url>
-		</repository>		
+		</repository>
+		<repository>
+     		<id>geotoolkit</id>
+     		<name>Geotk repository</name>
+     		<url>http://maven.geotoolkit.org</url>
+  		</repository>				
 	</repositories>
 	<dependencyManagement>
 		<dependencies>
