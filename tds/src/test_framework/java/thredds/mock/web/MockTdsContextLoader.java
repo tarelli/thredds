@@ -93,8 +93,7 @@ public class MockTdsContextLoader extends AbstractContextLoader {
 	 */
 	private void initTdsContext(XmlWebApplicationContext webApplicationContext,
 			ServletContext servletContext) {
-
-				
+						
 		TdsContext tdsContext = webApplicationContext.getBean(TdsContext.class);
 		
 		checkContentRootPath(webApplicationContext, tdsContext);

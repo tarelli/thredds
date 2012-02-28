@@ -1,7 +1,9 @@
 package thredds.server.opendap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Before;
@@ -15,6 +17,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import thredds.mock.web.MockTdsContextLoader;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.dods.DODSNetcdfFile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"},loader=MockTdsContextLoader.class)
@@ -36,14 +40,14 @@ public class OpendapServletTest {
 	}
 	
 	@Test
-	public void doGetTest() throws UnsupportedEncodingException{
+	public void asciiDataRequestTest() throws UnsupportedEncodingException{
 		
 		String mockURI = "/thredds/dodsC/test/testData.nc.ascii";
 		String mockQueryString ="valtime[0:1:0]";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", mockURI);		
 		request.setContextPath("/thredds");
 		request.setQueryString(mockQueryString);
-		request.setPathInfo("/test/testData.nc.ascii"); // ?
+		request.setPathInfo("/test/testData.nc.ascii"); 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		opendapServlet.doGet(request, response);
@@ -54,5 +58,28 @@ public class OpendapServletTest {
 				strResponse);
 		
 	}
+	
+	
+	@Test
+	public void dodsDataRequestTest() throws IOException{
+		
+		String mockURI = "/thredds/dodsC/test/testData.nc.dods";
+		String mockQueryString ="valtime[0:1:0]";
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", mockURI);		
+		request.setContextPath("/thredds");
+		request.setQueryString(mockQueryString);
+		request.setPathInfo("/test/testData.nc.dods"); 
+		MockHttpServletResponse response = new MockHttpServletResponse();
+
+		opendapServlet.doGet(request, response);
+		assertEquals("application/octet-stream" , response.getContentType());
+
+		byte[] content = response.getContentAsByteArray();
+		
+		NetcdfFile nf = DODSNetcdfFile.openInMemory("test_data.dods", content );
+
+		
+		fail("No yet implemented");
+	}	
 	
 }

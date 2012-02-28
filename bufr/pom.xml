@@ -67,6 +67,7 @@
         <directory>src/main/resources</directory>
         <includes>
           <include>resources/**</include>
+          <include>META-INF/services/**</include>          
         </includes>
       </resource>
     </resources>

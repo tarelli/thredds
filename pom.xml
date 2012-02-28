@@ -146,11 +146,7 @@
 		</profile>	
 	</profiles>
 
-	<!-- =========================================================== 
-			Dependency Management If a POM declares one of those dependencies, then it will use 
-			the version specified here. Otherwise, those dependencies are ignored. Reference: 
-			http://repo1.maven.org/maven2/ 
-		=========================================================== -->
+
 	<distributionManagement>
 		<repository>
 			<id>thredds-releases</id>
@@ -163,6 +159,7 @@
 			<url>http://artifacts.unidata.ucar.edu:8081/content/repositories/thredds-snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
+	
 	<repositories>
 		<repository>
 			<id>thredds</id>
@@ -177,8 +174,14 @@
      		<id>geotoolkit</id>
      		<name>Geotk repository</name>
      		<url>http://maven.geotoolkit.org</url>
-  		</repository>				
+  		</repository>  					
 	</repositories>
+	
+	<!-- =========================================================== 
+			Dependency Management If a POM declares one of those dependencies, then it will use 
+			the version specified here. Otherwise, those dependencies are ignored. Reference: 
+			http://repo1.maven.org/maven2/ 
+		=========================================================== -->		
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -354,9 +357,9 @@
 				<version>${oro.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>uk.ac.rdg.rersc</groupId>
+				<groupId>uk.ac.rdg.resc</groupId>
 				<artifactId>ncwms</artifactId>
-				<version>${uk.ac.rdg.rersc.version}</version>
+				<version>${uk.ac.rdg.resc.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.geotoolkit</groupId>
@@ -369,6 +372,13 @@
 				<version>${org.apache.tomcat.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<!-- THREDDS ISO -->
+			<dependency>
+				<groupId>EDS</groupId>
+				<artifactId>threddsIso</artifactId>
+				<version>${eds.threddsIso.version}</version>
+				<scope>runtime</scope>
+			</dependency>			
 			<!-- THREDDS - END -->
 
 			<!-- To make dependency usage of child modules in other child modules 
@@ -432,7 +442,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
-		</dependency>
+		</dependency>		
 	</dependencies>
 
 
@@ -581,12 +591,14 @@
 		<commons-logging.version>1.1.1</commons-logging.version>
 		<cas.version>2.1.1</cas.version>
 		<oro.version>2.0.8</oro.version>
-		<uk.ac.rdg.rersc.version>1.0.tds.4.2.20110419.2059</uk.ac.rdg.rersc.version>
+		<uk.ac.rdg.resc.version>1.0.tds.4.2.20110419.2059</uk.ac.rdg.resc.version>
+		<!-- uk.ac.rdg.rersc.version>1.0.tds.4.3.20120223.2315</uk.ac.rdg.rersc.version-->
 		<org.geotoolkit.version>3.04</org.geotoolkit.version>
 		<org.apache.tomcat.version>6.0.33</org.apache.tomcat.version>
 		<jfree.version>1.0.13</jfree.version>
 		<com.jgoodies.version>1.0.7</com.jgoodies.version>
 		<jfree.jcommon.version>1.0.15</jfree.jcommon.version>
+		<eds.threddsIso.version>2.02</eds.threddsIso.version>
 		
 		<!-- Plugins versions -->
 		<maven-release-plugin.version>2.2.2</maven-release-plugin.version>
