@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import thredds.mock.web.MockTdsContextLoader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class GridServletRequestTest {
+public abstract class GridServletRequestTest {
 	
 	@Autowired
 	protected ServletConfig servletConfig;
