@@ -54,7 +54,7 @@ public class RemoteCatalogControllerTest extends AbstractCatalogServiceTest{
 
 	}
 
-	//@Test
+	@Test
 	public void showCommandTest() throws Exception{
 
 		// Testing against some reliable remote TDS
@@ -83,7 +83,7 @@ public class RemoteCatalogControllerTest extends AbstractCatalogServiceTest{
 
 	}
 
-	//@Test
+	@Test
 	public void subsetCommandTest() throws Exception{
 
 		// SUBSET REQUEST PROVIDING A datasetId
@@ -110,7 +110,7 @@ public class RemoteCatalogControllerTest extends AbstractCatalogServiceTest{
 	}
 	
 	
-	//@Test
+	@Test
 	public void validateCommandTest() throws Exception {
 
 		// VALIDATE REQUEST 
@@ -141,7 +141,6 @@ public class RemoteCatalogControllerTest extends AbstractCatalogServiceTest{
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		
 		ModelAndView mv = remoteCatalogController.handleRequest(request, response);
-
 		assertViewName(mv, "/thredds/server/catalogservice/validationForm");
 		
 	}	

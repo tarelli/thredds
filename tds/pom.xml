@@ -250,6 +250,15 @@
             <artifactId>servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+        </dependency>
+        
+		<dependency>
+			<groupId>atg.taglib.json</groupId>
+			<artifactId>json-taglib</artifactId>				
+		</dependency>         			        
 		<!-- THREDDS ISO -->        
 		<dependency>
 			<groupId>EDS</groupId>
@@ -275,6 +284,7 @@
         	<groupId>jfree</groupId>
         	<artifactId>jfreechart</artifactId>
         </dependency>
+        
 
     </dependencies>
 

@@ -17,11 +17,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import thredds.mock.web.MockTdsContextLoader;
+import thredds.mock.web.TdsContentRootPath;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.dods.DODSNetcdfFile;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/WEB-INF/applicationContext-tdsConfig.xml"},loader=MockTdsContextLoader.class)
+@TdsContentRootPath(path = "/share/testcatalogs/content")
 public class OpendapServletTest {
 
 	@Autowired
@@ -42,20 +44,19 @@ public class OpendapServletTest {
 	@Test
 	public void asciiDataRequestTest() throws UnsupportedEncodingException{
 		
-		String mockURI = "/thredds/dodsC/test/testData.nc.ascii";
-		String mockQueryString ="valtime[0:1:0]";
+		String mockURI = "/thredds/dodsC/ncss_tests/files/GFS_CONUS_80km_20120229_1200.grib1.ascii";
+		String mockQueryString ="Temperature_height_above_ground[0:1:0][0:1:0][41][31]";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", mockURI);		
 		request.setContextPath("/thredds");
 		request.setQueryString(mockQueryString);
-		request.setPathInfo("/test/testData.nc.ascii"); 
+		request.setPathInfo("/ncss_tests/files/GFS_CONUS_80km_20120229_1200.grib1.ascii"); 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		opendapServlet.doGet(request, response);
 		
 		String strResponse = response.getContentAsString();
 		
-		assertEquals("Dataset {\n    Float64 valtime[record = 1];\n} test/testData.nc;\n---------------------------------------------\nvaltime[1]\n102840.0\n\n",
-				strResponse);
+		fail("Not yet implemented");
 		
 	}
 	
@@ -63,12 +64,12 @@ public class OpendapServletTest {
 	@Test
 	public void dodsDataRequestTest() throws IOException{
 		
-		String mockURI = "/thredds/dodsC/test/testData.nc.dods";
-		String mockQueryString ="valtime[0:1:0]";
+		String mockURI = "/thredds/dodsC/ncss_tests/files/GFS_CONUS_80km_20120229_1200.grib1.ascii";
+		String mockQueryString ="Temperature_height_above_ground[0:1:0][0:1:0][41][31]";
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", mockURI);		
 		request.setContextPath("/thredds");
 		request.setQueryString(mockQueryString);
-		request.setPathInfo("/test/testData.nc.dods"); 
+		request.setPathInfo("/ncss_tests/files/GFS_CONUS_80km_20120229_1200.grib1.ascii"); 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
 		opendapServlet.doGet(request, response);
@@ -79,7 +80,7 @@ public class OpendapServletTest {
 		NetcdfFile nf = DODSNetcdfFile.openInMemory("test_data.dods", content );
 
 		
-		fail("No yet implemented");
+		fail("Not yet implemented");
 	}	
 	
 }

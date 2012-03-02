@@ -1,12 +1,17 @@
 package thredds.server.cdmremote;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 
+import org.jdom.Document;
+import org.jdom.Namespace;
+import org.jdom.input.SAXBuilder;
+import org.jdom.xpath.XPath;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +24,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import thredds.mock.web.MockTdsContextLoader;
 import thredds.mock.web.TdsContentRootPath;
+import thredds.test.util.xml.NcmlParserUtil;
+import thredds.test.util.xml.XmlUtil;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.stream.NcStream;
 import ucar.nc2.stream.NcStreamIosp;
@@ -86,9 +93,16 @@ public class CdmRemoteControllerTest {
         MockHttpServletResponse response = new MockHttpServletResponse();
         ModelAndView mv =cdmRemoteController.handleRequest(request, response);        
         assertNull(mv);
+        assertEquals( 200, response.getStatus() );
         assertEquals( "application/xml", response.getContentType() );
 
+        Document doc = XmlUtil.getStringResponseAsDoc(response);
         
+        //Not really checking the content just the number of elements
+        assertEquals( 5 ,  NcmlParserUtil.getNcMLElements("netcdf/dimension", doc).size());
+        assertEquals( 12,  NcmlParserUtil.getNcMLElements("netcdf/attribute", doc).size());
+        assertEquals( 16,  NcmlParserUtil.getNcMLElements("//variable", doc).size() );
+
 	}	
 	
 	@Test
