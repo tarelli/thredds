@@ -34,11 +34,16 @@
 package ucar.nc2.ui;
 
 import thredds.featurecollection.FeatureCollectionConfig;
+import ucar.nc2.constants.CdmIndex;
 import ucar.nc2.dt.GridDataset;
 import ucar.nc2.dt.GridDatatype;
 import ucar.nc2.dt.RadialDatasetSweep;
 import ucar.nc2.ft.grid.CoverageDataset;
+import ucar.nc2.grib.grib1.Grib1CollectionBuilder;
+import ucar.nc2.grib.grib1.Grib1TimePartitionBuilder;
 import ucar.nc2.grib.grib1.tables.Grib1ParamTables;
+import ucar.nc2.grib.grib2.Grib2CollectionBuilder;
+import ucar.nc2.grib.grib2.Grib2TimePartitionBuilder;
 import ucar.nc2.grib.grib2.table.WmoTemplateTable;
 import ucar.nc2.iosp.bufr.tables.BufrTables;
 import ucar.nc2.stream.CdmRemote;
@@ -76,6 +81,7 @@ import ucar.nc2.ui.grid.GridUI;
 import ucar.nc2.ui.image.ImageViewPanel;
 import ucar.nc2.ui.util.*;
 
+import ucar.unidata.io.*;
 import ucar.util.prefs.*;
 import ucar.util.prefs.ui.*;
 
@@ -85,6 +91,7 @@ import thredds.inventory.bdb.MetadataManager;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.io.RandomAccessFile;
 import java.util.*;
 import java.util.List;
 
@@ -2769,19 +2776,34 @@ public class ToolsUI extends JPanel {
     }
 
     boolean process(Object o) {
-      String command = (String) o;
+      String indexFile = (String) o;
       boolean err = false;
 
-      ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
       try {
-        gribTable.setIndexFile(command);
+        ucar.unidata.io.RandomAccessFile raf = new ucar.unidata.io.RandomAccessFile(indexFile, "r");
+        CdmIndex type = identifyIndexFile(raf);
+        if (type == null) {
+          JOptionPane.showMessageDialog(null, "Cant identify cdmIndex type for " + indexFile);
+          err = true;
+          raf.close();
+
+        } else {
+          switch (type) {
+            case Grib1Collection:
+            case Grib2Collection:
+            case Grib1TimePartition:
+            case Grib2TimePartition:
+              gribTable.setIndexFile(type, indexFile, raf);
+          }
+        }
 
       } catch (FileNotFoundException ioe) {
-        JOptionPane.showMessageDialog(null, "NetcdfDataset cant open " + command + "\n" + ioe.getMessage());
+        JOptionPane.showMessageDialog(null, "Cant open " + indexFile + "\n" + ioe.getMessage());
         err = true;
 
       } catch (Exception e) {
         e.printStackTrace();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(10000);
         e.printStackTrace(new PrintStream(bos));
         detailTA.setText(bos.toString());
         detailWindow.show();
@@ -2796,6 +2818,25 @@ public class ToolsUI extends JPanel {
       super.save();
     }
 
+    CdmIndex identifyIndexFile(ucar.unidata.io.RandomAccessFile raf) throws IOException {
+
+      raf.seek(0);
+      byte[] b = new byte[Grib2CollectionBuilder.MAGIC_START.getBytes().length];
+      raf.read(b);
+
+      String magic = new String(b);
+      if (magic.equals(Grib2CollectionBuilder.MAGIC_START))
+        return CdmIndex.Grib2Collection;
+      else if (magic.equals(Grib1CollectionBuilder.MAGIC_START))
+        return CdmIndex.Grib1Collection;
+      else if (magic.equals(Grib2TimePartitionBuilder.MAGIC_START))
+        return CdmIndex.Grib2TimePartition;
+      else if (magic.equals(Grib1TimePartitionBuilder.MAGIC_START))
+        return CdmIndex.Grib2TimePartition;
+
+
+      return null;
+    }
   }
 
  /////////////////////////////////////////////////////////////////////

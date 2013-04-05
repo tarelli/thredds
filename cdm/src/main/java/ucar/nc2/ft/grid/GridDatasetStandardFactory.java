@@ -1,5 +1,5 @@
 /*
- * Copyright 1998-2009 University Corporation for Atmospheric Research/Unidata
+ * Copyright 1998-2013 University Corporation for Atmospheric Research/Unidata
  *
  * Portions of this software were developed by the Unidata Program at the
  * University Corporation for Atmospheric Research.
@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.util.Formatter;
 
 /**
- * FeatureDatasetFactory for Grids, using standard coord sys analysis
+ * FeatureDatasetFactory for Grids, using standard coord sys analysis. old school.
  * @author caron
  * @since Dec 30, 2008
  */

@@ -181,10 +181,10 @@ public class FeatureScan {
         coordSysBuilder = ds.findAttValueIgnoreCase(null, _Coordinate._CoordSysBuilder, "none");
 
         Formatter errlog = new Formatter();
-        isCoverage = CoverageCSFactory.describe(errlog, ds);
+        isCoverage = CoverageCSFactory.describe(errlog, ds);  // new and shiny
         info.append(errlog.toString());
 
-        ftFromMetadata = FeatureDatasetFactoryManager.findFeatureType(ds);
+        ftFromMetadata = FeatureDatasetFactoryManager.findFeatureType(ds); // global ATt
 
         try {
           errlog = new Formatter();
@@ -210,6 +210,11 @@ public class FeatureScan {
           info.append(errlog.toString());
           problem = t;
         }
+
+      } catch (IOException ioe) {
+        boolean notCdm = ioe.getMessage().contains("not a valid CDM file");
+        fileType = notCdm ? "not a valid CDM file" : " IO: " + ioe.getMessage();
+        problem = ioe;
 
       } catch (Throwable t) {
         fileType = " ERR: " + t.getMessage();
@@ -264,7 +269,7 @@ public class FeatureScan {
       return ftype;
     }
 
-    public String getFtMetadata() {
+    public String getFtAttribute() {
       return (ftFromMetadata == null) ? "" : ftFromMetadata.toString();
     }
 

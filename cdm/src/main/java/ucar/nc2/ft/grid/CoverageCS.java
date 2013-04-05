@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998 - 2010. University Corporation for Atmospheric Research/Unidata
+ * Copyright (c) 1998 - 2013. University Corporation for Atmospheric Research/Unidata
  * Portions of this software were developed by the Unidata Program at the
  * University Corporation for Atmospheric Research.
  *
@@ -34,15 +34,11 @@ package ucar.nc2.ft.grid;
 
 import ucar.nc2.Dimension;
 import ucar.nc2.time.CalendarDateRange;
-import ucar.nc2.units.DateRange;
 import ucar.nc2.dataset.*;
-import ucar.ma2.Range;
 import ucar.ma2.InvalidRangeException;
-import ucar.unidata.geoloc.LatLonPoint;
 
 import java.util.Formatter;
 import java.util.List;
-import java.util.Date;
 
 /**
  * A Coordinate System for coverage data. Where:
@@ -62,7 +58,7 @@ import java.util.Date;
  * We could insist on one dimensional X, Y, Z, T, and treat optional HorizontalTransform the same as VerticalTransform.
  * Its job would be to provide lat(x,y) and lon(x,y) arrays.
  *
- * At the moment this is just a rearrangement  of dt.grid.GridCoordSystem
+ * At the moment this is just a rearrangement of dt.grid.GridCoordSystem
  *
  * TODO
  *  horiz time dependence
@@ -100,7 +96,7 @@ public interface CoverageCS {
   public List<CoordinateAxis> getCoordinateAxes();
 
   /**
-   * Get the list of axes that are not x,y,z,t.
+   * Get the list of axes that are not standard
    *
    * @return List of CoordinateAxis.
    */
@@ -110,8 +106,8 @@ public interface CoverageCS {
    * True if all axes are 1 dimensional.
    *
    * @return true if all axes are 1 dimensional.
-   */
-  public boolean isProductSet();
+   *
+  public boolean isProductSet();  */
 
   /**
    * Get the list of all CoordinateTransforms.

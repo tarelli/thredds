@@ -32,6 +32,7 @@
 
 package ucar.nc2.ui;
 
+import ucar.nc2.constants.CdmIndex;
 import ucar.nc2.grib.*;
 import ucar.nc2.grib.grib1.Grib1CollectionBuilder;
 import ucar.nc2.grib.grib1.Grib1TimePartitionBuilder;
@@ -56,7 +57,7 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Examine Grib Collection Index files
+ * Examine Grib Collection CdmIndex files (ncx)
  * Grib1 or Grib2
  *
  * @author caron
@@ -305,25 +306,23 @@ public class GribCollectionIndexPanel extends JPanel {
   ///////////////////////////////////////////////
   GribCollection gc;
 
-  public void setIndexFile(String indexFile) throws IOException {
+  public void setIndexFile(CdmIndex type, String indexFile, RandomAccessFile raf) throws IOException {
     if (gc != null) gc.close();
 
-    RandomAccessFile raf = new RandomAccessFile(indexFile, "r");
-    raf.seek(0);
-    byte[] b = new byte[Grib2CollectionBuilder.MAGIC_START.getBytes().length];
-    raf.read(b);
-    String magic = new String(b);
-    if (magic.equals(Grib2CollectionBuilder.MAGIC_START))
-      gc = Grib2CollectionBuilder.createFromIndex(indexFile, null, raf, null);
-    else if (magic.equals(Grib1CollectionBuilder.MAGIC_START))
-      gc = Grib1CollectionBuilder.createFromIndex(indexFile, null, raf, null);
-    else if (magic.equals(Grib2TimePartitionBuilder.MAGIC_START))
-      gc = Grib2TimePartitionBuilder.createFromIndex(indexFile, null, raf);
-    else if (magic.equals(Grib1TimePartitionBuilder.MAGIC_START))
-      gc = Grib1TimePartitionBuilder.createFromIndex(indexFile, null, raf);
-
-    else
-      throw new IOException("Not a grib collection index file ="+magic);
+    switch (type) {
+      case Grib1Collection:
+        gc = Grib1CollectionBuilder.createFromIndex(indexFile, null, raf, null);
+        break;
+      case Grib2Collection:
+        gc = Grib2CollectionBuilder.createFromIndex(indexFile, null, raf, null);
+        break;
+      case Grib1TimePartition:
+        gc = Grib1TimePartitionBuilder.createFromIndex(indexFile, null, raf, null);
+        break;
+      case Grib2TimePartition:
+        gc = Grib2TimePartitionBuilder.createFromIndex(indexFile, null, raf, null);
+        break;
+    }
 
     List<GroupBean> groups = new ArrayList<GroupBean>();
     for (GribCollection.GroupHcs g : gc.getGroups()) {

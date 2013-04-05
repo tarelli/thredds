@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998 - 2010. University Corporation for Atmospheric Research/Unidata
+ * Copyright (c) 1998 - 2013. University Corporation for Atmospheric Research/Unidata
  * Portions of this software were developed by the Unidata Program at the
  * University Corporation for Atmospheric Research.
  *
@@ -33,29 +33,18 @@
 package ucar.nc2.ft.grid;
 
 import ucar.ma2.*;
-import ucar.nc2.Dimension;
+import ucar.nc2.IsMissingEvaluator;
 import ucar.nc2.VariableSimpleIF;
-import ucar.nc2.util.NamedObject;
-
-import java.util.List;
 
 /**
  * Experimental Coverage feature type.
  * Superclass of gridded data types
  * Can we do this without indexed reads?
+ *
  * @author caron
  * @since Jan 19, 2010
  */
-public interface Coverage extends IsMissingEvaluator, VariableSimpleIF, NamedObject {
-
-    /**
-     * Convenience function; lookup Attribute value by name. Must be String valued
-     *
-     * @param attName      name of the attribute
-     * @param defaultValue if not found, use this as the default
-     * @return Attribute string value, or default if not found.
-     */
-    public String findAttValueIgnoreCase(String attName, String defaultValue);
+public interface Coverage extends IsMissingEvaluator, VariableSimpleIF {
 
     /**
      * Returns a List of Dimension containing the dimensions used by this Coverage.
@@ -65,8 +54,8 @@ public interface Coverage extends IsMissingEvaluator, VariableSimpleIF, NamedObj
      * gcs.getXHorizAxis().getDimension(1), gcs.getXHorizAxis().getDimension(0), respectively.
      *
      * @return List with objects of type Dimension, in canonical order.
-     */
-    public List<Dimension> getDimensions();
+     *
+    public List<Dimension> getDimensions();  */
 
     /**
      * get the Coverage's Coordinate System.
@@ -114,6 +103,16 @@ public interface Coverage extends IsMissingEvaluator, VariableSimpleIF, NamedObj
      * @throws ucar.ma2.InvalidRangeException if ranges are invalid
      *
     public Coverage makeSubset(Subset subset) throws ucar.ma2.InvalidRangeException;  */
+
+  /**
+   * Convenience function; lookup Attribute value by name. Must be String valued
+   *
+   * @param attName      name of the attribute
+   * @param defaultValue if not found, use this as the default
+   * @return Attribute string value, or default if not found.
+   */
+  public String findAttValueIgnoreCase(String attName, String defaultValue);
+
 
     /**
      * human readable information about this Coverage.

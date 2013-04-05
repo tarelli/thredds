@@ -33,6 +33,7 @@
 package ucar.nc2;
 
 import ucar.ma2.DataType;
+import ucar.nc2.util.NamedObject;
 
 import java.util.List;
 
@@ -42,7 +43,7 @@ import java.util.List;
  * @author caron
  * @see ucar.nc2.ft.FeatureDataset
  */
-public interface VariableSimpleIF extends Comparable<VariableSimpleIF> {
+public interface VariableSimpleIF extends NamedObject, Comparable<VariableSimpleIF> {
 
   /**
    * Name of the data Variable.
