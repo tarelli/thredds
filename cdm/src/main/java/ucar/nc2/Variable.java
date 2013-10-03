@@ -570,7 +570,7 @@ public class Variable extends CDMNode implements VariableIF, ProxyReader {
   protected NetcdfFile getNetcdfFile() {
     return ncfile;
   }
-
+   
   //////////////////////////////////////////////////////////////////////////////
 
   /**
