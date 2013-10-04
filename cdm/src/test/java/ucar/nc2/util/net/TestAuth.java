@@ -192,7 +192,6 @@ public class TestAuth extends UnitTestCommon
                         "", "", MUSTFAIL)
         };
 
-
     @Test
     public void
     testBasic() throws Exception
