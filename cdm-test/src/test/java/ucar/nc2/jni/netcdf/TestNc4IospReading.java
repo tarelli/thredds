@@ -25,7 +25,7 @@ import java.util.Formatter;
 public class TestNc4IospReading {
   private boolean showCompareResults = true;
   private int countNotOK = 0;
-
+                                                                b
   @Before
   public void setLibrary() {
     Nc4Iosp.setLibraryAndPath("/home/mhermida/opt/lib", "netcdf");

@@ -126,7 +126,6 @@ public class Dimension extends CDMNode implements Comparable {
    */
   @Override
   public boolean equals(Object oo) {
-if(CDMNode.OBJECTHASH) return super.equals(oo); else {
     if (this == oo) return true;
     if ( !(oo instanceof Dimension)) return false;
     Dimension other = (Dimension) oo;
@@ -138,7 +137,6 @@ if(CDMNode.OBJECTHASH) return super.equals(oo); else {
            (isUnlimited() == other.isUnlimited()) &&
            (isVariableLength() == other.isVariableLength()) &&
            (isShared() == other.isShared());
-}
   }
 
   /**
