@@ -672,7 +672,7 @@ public class Group extends CDMNode {
    */
   @Override
   public boolean equals(Object oo) {
-if(CDMNode.OBJECTHASH) return super.equals(o); else {
+if(CDMNode.OBJECTHASH) return super.equals(oo); else {
     if (this == oo) return true;
     if (!(oo instanceof Group)) return false;
     Group og = (Group) oo;
