@@ -33,6 +33,7 @@
 package ucar.nc2;
 
 import ucar.nc2.util.Indent;
+import java.util.List;
 
 /**
  * Define a superclass for all the CDM node classes: Group, Dimension, etc.
@@ -89,6 +90,18 @@ public abstract class CDMNode {
   public CDMNode(String name) {
     this();
     setShortName(name);
+  }
+
+  abstract public boolean equivalent(Object o);
+
+  /* Provide a list searcher using equivalent() */
+  static public int equivalentOf(List list, Object o)
+  {
+    for(int i=0;i<list.size();i++) {
+	CDMNode node = (CDMNode)list.get(i);
+	if(node.equivalent(o)) return i;
+    }
+    return -1;
   }
 
   // Get/Set
