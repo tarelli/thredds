@@ -94,7 +94,7 @@ public abstract class CDMNode {
 
   abstract public boolean equivalent(Object o);
 
-  /* Provide a list searcher using equivalent() */
+  /* Provide list searchers using equivalent() */
   static public int equivalentOf(List list, Object o)
   {
     for(int i=0;i<list.size();i++) {
@@ -102,6 +102,11 @@ public abstract class CDMNode {
 	if(node.equivalent(o)) return i;
     }
     return -1;
+  }
+
+  static public boolean hasEquivalent(List list, Object o)
+  {
+      return equivalentOf(list,o) >= 0;
   }
 
   // Get/Set

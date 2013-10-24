@@ -193,7 +193,18 @@ public class EnumTypedef extends CDMNode {
 
     EnumTypedef that = (EnumTypedef) o;
 
-    if (map != null ? !map.equals(that.map) : that.map != null) return false;
+    if(map == that.map)
+        return true;
+      if (map == null ^ that.map == null)
+        return false;
+    if(!CDMNode.OBJECTHASH)
+        if(!map.equals(that.map)) return false;
+    else for(Integer key: map.keySet()) {
+          String econst = map.get(key);
+          String thateconst = that.map.get(key);
+          if(thateconst == null || !econst.equals(thateconst))
+              return false;
+      }
     String name = getShortName();
     String thatname = that.getShortName();
     if (name != null ? !name.equals(thatname) : thatname != null) return false;

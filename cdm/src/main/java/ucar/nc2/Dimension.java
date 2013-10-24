@@ -130,7 +130,7 @@ public class Dimension extends CDMNode implements Comparable {
     if ( !(oo instanceof Dimension)) return false;
     Dimension other = (Dimension) oo;
     Group g = getGroup();
-    if ((g != null) && !g.equals(other.getGroup())) return false;
+    if ((g != null) && !g.equivalent(other.getGroup())) return false;
     if ((getShortName() == null) && (other.getShortName() != null)) return false;
     if ((getShortName() != null) && !getShortName().equals(other.getShortName())) return false;
     return (getLength() == other.getLength()) &&
