@@ -180,14 +180,6 @@ public class EnumTypedef extends CDMNode {
 
   @Override
   public boolean equals(Object o) {
-    if(CDMNode.OBJECTHASH)
-	return super.equals(o);
-    else
-	return equivalent(o);
-  }
-
-  @Override
-  public boolean equivalent(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
@@ -195,16 +187,9 @@ public class EnumTypedef extends CDMNode {
 
     if(map == that.map)
         return true;
-      if (map == null ^ that.map == null)
-        return false;
-    if(!CDMNode.OBJECTHASH)
-        if(!map.equals(that.map)) return false;
-    else for(Integer key: map.keySet()) {
-          String econst = map.get(key);
-          String thateconst = that.map.get(key);
-          if(thateconst == null || !econst.equals(thateconst))
-              return false;
-      }
+    if (map == null ^ that.map == null)
+      return false;
+    if(!map.equals(that.map)) return false;
     String name = getShortName();
     String thatname = that.getShortName();
     if (name != null ? !name.equals(thatname) : thatname != null) return false;
