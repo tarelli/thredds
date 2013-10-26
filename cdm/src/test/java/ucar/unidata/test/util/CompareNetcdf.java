@@ -246,8 +246,7 @@ public class CompareNetcdf {
     boolean ok = true;
 
     for (Object want1 : wantList) {
-      int index2 = (CDMNode.OBJECTHASH?CDMNode.equivalentOf(container,want1)
-                                      :container.indexOf(want1));
+      int index2 = container.indexOf(want1);
       if (index2 < 0) {
          f.format("  ** %s %s missing %n", want1.getClass().getName(), want1);
          ok = false;
@@ -278,15 +277,13 @@ public class CompareNetcdf {
   private boolean checkEach(Object want1, String name1, List list1, String name2, List list2, List result, Formatter f) {
     boolean ok = true;
     try {
-      int index2 = (CDMNode.OBJECTHASH?CDMNode.equivalentOf(list2,want1)
-                                      :list2.indexOf(want1));
+      int index2 = list2.indexOf(want1);
       if (index2 < 0) {
         f.format("  ** %s %s (%s) not in %s %n", want1.getClass().getName(), want1, name1, name2);
         ok = false;
       } else { // found it in second list
         Object want2 = list2.get(index2);
-        int index1 = (CDMNode.OBJECTHASH?CDMNode.equivalentOf(list1,want2)
-                                      :list1.indexOf(want2));
+        int index1 = list1.indexOf(want2);
         if (index1 < 0) { // can this happen ??
           f.format("  ** %s %s (%s) not in %s %n", want2.getClass().getName(), want2, name2, name1);
           ok = false;
