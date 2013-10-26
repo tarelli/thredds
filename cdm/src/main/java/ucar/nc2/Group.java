@@ -677,7 +677,7 @@ public class Group extends CDMNode {
     Group og = (Group) oo;
     if (!getShortName().equals(og.getShortName()))
       return false;
-    if ((getParentGroup() != null) && !getParentGroup().equivalent(og.getParentGroup()))
+    if ((getParentGroup() != null) && !getParentGroup().equals(og.getParentGroup()))
       return false;
     return true;
   }

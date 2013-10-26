@@ -92,23 +92,6 @@ public abstract class CDMNode {
     setShortName(name);
   }
 
-  abstract public boolean equivalent(Object o);
-
-  /* Provide list searchers using equivalent() */
-  static public int equivalentOf(List list, Object o)
-  {
-    for(int i=0;i<list.size();i++) {
-	CDMNode node = (CDMNode)list.get(i);
-	if(node.equivalent(o)) return i;
-    }
-    return -1;
-  }
-
-  static public boolean hasEquivalent(List list, Object o)
-  {
-      return equivalentOf(list,o) >= 0;
-  }
-
   // Get/Set
   public CDMSort getSort() {
     return this.sort;

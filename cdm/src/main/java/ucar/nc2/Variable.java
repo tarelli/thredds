@@ -1104,12 +1104,12 @@ public class Variable extends CDMNode implements VariableIF, ProxyReader {
     if (!getShortName().equals(o.getShortName())) return false;
     if (isScalar() != o.isScalar()) return false;
     if (getDataType() != o.getDataType()) return false;
-    if (!getParentGroup().equivalent(o.getParentGroup())) return false;
-    if ((getParentStructure() != null) && !getParentStructure().equivalent(o.getParentStructure())) return false;
+    if (!getParentGroup().equals(o.getParentGroup())) return false;
+    if ((getParentStructure() != null) && !getParentStructure().equals(o.getParentStructure())) return false;
     if (isVariableLength() != o.isVariableLength()) return false;
     if (dimensions.size() != o.getDimensions().size()) return false;
     for (int i = 0; i < dimensions.size(); i++)
-      if (!getDimension(i).equivalent(o.getDimension(i))) return false;
+      if (!getDimension(i).equals(o.getDimension(i))) return false;
 
     return true;
   }
