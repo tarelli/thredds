@@ -44,7 +44,6 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
-import org.apache.http.params.*;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -103,6 +102,16 @@ public class HTTPSession
     //////////////////////////////////////////////////
     // Constants
 
+    // The following parameters are accepted.
+
+    static public String ALLOW_CIRCULAR_REDIRECTS = AllClientPNames.ALLOW_CIRCULAR_REDIRECTS;
+    static public String HANDLE_REDIRECTS = AllClientPNames.HANDLE_REDIRECTS;
+    static public String HANDLE_AUTHENTICATION = AllClientPNames.HANDLE_AUTHENTICATION;
+    static public String MAX_REDIRECTS = AllClientPNames.MAX_REDIRECTS;
+    static public String USER_AGENT = AllClientPNames.USER_AGENT;
+    static public String SO_TIMEOUT = AllClientPNames.SO_TIMEOUT;
+    static public String CONNECTION_TIMEOUT = HttpConnectionParams.CONNECTION_TIMEOUT;
+
     static final public HTTPAuthScheme BASIC = HTTPAuthScheme.BASIC;
     static final public HTTPAuthScheme DIGEST = HTTPAuthScheme.DIGEST;
     static final public HTTPAuthScheme NTLM = HTTPAuthScheme.NTLM;
@@ -111,18 +120,6 @@ public class HTTPSession
     static public int SC_NOT_FOUND = HttpStatus.SC_NOT_FOUND;
     static public int SC_UNAUTHORIZED = HttpStatus.SC_UNAUTHORIZED;
     static public int SC_OK = HttpStatus.SC_OK;
-    static public String CONNECTION_TIMEOUT = HttpConnectionParams.CONNECTION_TIMEOUT;
-    static public String SO_TIMEOUT = AllClientPNames.SO_TIMEOUT;
-
-    static public String ALLOW_CIRCULAR_REDIRECTS = AllClientPNames.ALLOW_CIRCULAR_REDIRECTS;
-    static public String MAX_REDIRECTS = AllClientPNames.MAX_REDIRECTS;
-    static public String USER_AGENT = AllClientPNames.USER_AGENT;
-    static public String PROTOCOL_VERSION = AllClientPNames.PROTOCOL_VERSION;
-    static public String VIRTUAL_HOST = AllClientPNames.VIRTUAL_HOST;
-    static public String USE_EXPECT_CONTINUE = AllClientPNames.USE_EXPECT_CONTINUE;
-    static public String STRICT_TRANSFER_ENCODING = AllClientPNames.STRICT_TRANSFER_ENCODING;
-    static public String HTTP_ELEMENT_CHARSET = AllClientPNames.HTTP_ELEMENT_CHARSET;
-    static public String HTTP_CONTENT_CHARSET = AllClientPNames.HTTP_CONTENT_CHARSET;
 
     /*fix:*/
     static public String HTTP_CONNECTION = "<undefined>";
@@ -135,10 +132,14 @@ public class HTTPSession
     static public String WAIT_FOR_CONTINUE = "<undefined>";
 
     static int DFALTTHREADCOUNT = 50;
-    static int DFALTTIMEOUT = 5 * 60 * 1000; // 5 minutes (300000 milliseconds)
+    static int DFALTCONNTIMEOUT = 1 * 60 * 1000; // 1 minutes (60000 milliseconds)
+    static int DFALTSOTIMEOUT   = 5 * 60 * 1000; // 5 minutes (300000 milliseconds)
 
     //////////////////////////////////////////////////////////////////////////
     //Type Declarations
+
+    // Httpclient 4 deprecates HttpParams, so use our own version
+    static public class Params extends HashMap<String,Object> {}
 
     static class Proxy
     {
@@ -235,8 +236,8 @@ public class HTTPSession
     static int globalSoTimeout = 0;
     static int globalConnectionTimeout = 0;
     static Proxy globalproxy = null;
-    static int localSoTimeout = 0;
-    static int localConnectionTimeout = 0;
+    static Params globalparams  = new Params();
+    static public Set<String> allowedParams = new HashSet<Strings>();
 
     static {
         connmgr = new PoolingClientConnectionManager();
@@ -251,6 +252,14 @@ public class HTTPSession
         setGlobalSoTimeout(DFALTTIMEOUT);
         getGlobalProxyD(); // get info from -D if possible
         setGlobalKeyStore();
+	// Build the set of allowed parameter names
+        allowedParams.add(ALLOW_CIRCULAR_REDIRECTS);
+        allowedParams.add(MAX_REDIRECTS);
+        allowedParams.add(USER_AGENT);
+        allowedParams.add(CONNECTION_TIMEOUT);
+        allowedParams.add(SO_TIMEOUT);
+        allowedParams.add(HANDLE_REDIRECTS);
+        allowedParams.add(HANDLE_AUTHENTICATION);
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -398,6 +407,8 @@ public class HTTPSession
 
 
     // Static Utilitiy functions
+
+    static Params getGlobalParams() {return globalparams;}
 
     static String
     getUserinfo(String surl)
@@ -588,6 +599,10 @@ public class HTTPSession
     String useragent = null;
     String legalurl = null;
     boolean closed = false;
+    int localSoTimeout = 0;
+    int localConnectionTimeout = 0;
+    Params localparams  = new Params();
+
 
     //////////////////////////////////////////////////
     // Constructor(s)
@@ -610,20 +625,26 @@ public class HTTPSession
         this.legalurl = legalurl;
         try {
             sessionClient = new DefaultHttpClient(connmgr);
-            HttpParams clientparams = sessionClient.getParams();
+
+	    // there is a bug in httpclient4. In one place, it assumes
+            // connection timeout is long and in another, it assumes it is int.
+            // We need to set the timeout parameters and avoid using HttpParams.
+            // However this requires us to cache parameters and set them
+            // at the point the method is executed.
 
             // Allow (circular) redirects
-            clientparams.setParameter(ALLOW_CIRCULAR_REDIRECTS, true);
-            clientparams.setParameter(MAX_REDIRECTS, 25);
+            localparams.put(ALLOW_CIRCULAR_REDIRECTS, true);
+            localparams.put(MAX_REDIRECTS, 25);
+
 
             if(globalSoTimeout > 0)
-                clientparams.setParameter(AllClientPNames.SO_TIMEOUT, globalSoTimeout);
+                localparams.setParameter(AllClientPNames.SO_TIMEOUT, globalSoTimeout);
 
             if(globalConnectionTimeout > 0)
-                clientparams.setParameter(AllClientPNames.CONN_MANAGER_TIMEOUT, (long) globalConnectionTimeout);
+                localparams.setParameter(AllClientPNames.CONN_MANAGER_TIMEOUT, globalConnectionTimeout);
 
             if(globalAgent != null)
-                clientparams.setParameter(AllClientPNames.USER_AGENT, globalAgent);
+                localparams.setParameter(AllClientPNames.USER_AGENT, globalAgent);
 
             setAuthenticationPreemptive(globalauthpreemptive);
 
@@ -664,6 +685,7 @@ public class HTTPSession
         if(timeout >= 0) localConnectionTimeout = timeout;
     }
 
+    public Params getParams() {return localparams;}
 
     /**
      * Close the session. This implies closing
@@ -708,8 +730,7 @@ public class HTTPSession
 
     public void setMaxRedirects(int n)
     {
-        HttpParams clientparams = sessionClient.getParams();
-        clientparams.setParameter(MAX_REDIRECTS, n);
+        localparams.setParameter(MAX_REDIRECTS, n);
     }
 
     public void setContext(HttpContext cxt)

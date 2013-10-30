@@ -31,6 +31,12 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+/**
+WARNING: This code uses the pre-4.3 parameter mechanism,
+which is deprecated starting in 4.3. Moving to the new
+4.3 EntityBuilder model may be painful.
+*/
+
 package ucar.nc2.util.net;
 
 import java.io.*;
@@ -48,8 +54,6 @@ import org.apache.http.client.params.AllClientPNames;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import ucar.nc2.util.EscapeStrings;
@@ -166,7 +170,7 @@ public class HTTPMethod
     //////////////////////////////////////////////////////////////////////////
     // Static variables
 
-    static HashMap<String, Object> globalparams = new HashMap<String, Object>();
+    static HTTPSession.Params globalparams = new HTTPSession.Params();
 
     //////////////////////////////////////////////////
     // Static API
@@ -177,6 +181,8 @@ public class HTTPMethod
         globalparams.put(name, value);
     }
 
+
+
     //////////////////////////////////////////////////
     // Instance fields
 
@@ -184,16 +190,15 @@ public class HTTPMethod
     boolean localsession = false;
     String legalurl = null;
     List<Header> headers = new ArrayList<Header>();
-    HashMap<String, Object> params = new HashMap<String, Object>();
-    HttpContext context = null;
+    HTTPSession.Params params = new HTTPSession.Params();
     HttpEntity content = null;
     HTTPSession.Methods methodclass = null;
     HTTPMethodStream methodstream = null; // wrapper for strm
     boolean closed = false;
-    HttpRequestBase method = null;
     HttpResponse response = null;
-    //todo: List<org.apache.http.entity.mime.FormBodyPart> multiparts = null;
-
+    // For httpclient 4.3, the actual method is built
+    // at the last moment using RequestBuilder.
+    HttpUriRequest request = null;
 
 
     //////////////////////////////////////////////////
@@ -229,58 +234,53 @@ public class HTTPMethod
         this.session.addMethod(this);
 
         this.methodclass = m;
+
+        // Always do these
+        params.put(HTTPSession.HANDLE_REDIRECTS,true);
+        params.put(HTTPSession.HANDLE_AUTHENTICATION, true);
+
     }
 
-    HttpRequestBase
-    create()
+    RequestBuilder
+    createBuilder()
     {
-        HttpRequestBase method = null;
-        // Unfortunately, the apache httpclient 3 code has a restrictive
+        RequestBuilder builder = null;
+        // Unfortunately, the apache httpclient 3 (and 4?) code has a restrictive
         // notion of a legal url, so we need to encode it before use
         String urlencoded = EscapeStrings.escapeURL(this.legalurl);
 
         switch (this.methodclass) {
         case Put:
-            method = new HttpPut(urlencoded);
+            builder = RequestBuilder.put().setUri(urlencoded);
             break;
         case Post:
-            method = new HttpPost(urlencoded);
+            builder = RequestBuilder.post().setUri(urlencoded);
             break;
         case Get:
-            method = new HttpGet(urlencoded);
+            builder = RequestBuilder.build().setUri(urlencoded);
             break;
         case Head:
-            method = new HttpHead(urlencoded);
+            builder = RequestBuilder.head().setUri(urlencoded);
             break;
         case Options:
-            method = new HttpOptions(urlencoded) ;
+            builder = RequestBuilder.options().setUri(urlencoded) ;
             break;
         default:
             break;
         }
-        // Force some actions
-        if(method != null) {
-            method.getParams().setParameter(AllClientPNames.HANDLE_REDIRECTS,true);
-            method.getParams().setParameter(AllClientPNames.HANDLE_AUTHENTICATION, true);
-        }
-        return method;
+        return builder;
     }
 
-    void setcontent()
+    void setcontent(RequestBuilder builder)
     {
         switch (this.methodclass) {
         case Put:
             if(this.content != null)
-                ((HttpPut)method).setEntity(this.content);
+                builder.setEntity(this.content);
             break;
         case Post:
-            //todo: if(multiparts != null && multiparts.length > 0) {
-            //    MultipartEntity mre = new MultipartEntity();
-            //    for()
-            //    ((PostMethod) method).setRequestEntity(mre);
-            //} else
             if(this.content != null)
-                ((HttpPost) method).setEntity(this.content);
+                builder.setEntity(this.content);
             break;
         case Head:
         case Get:
@@ -289,7 +289,6 @@ public class HTTPMethod
             break;
         }
         this.content = null; // do not reuse
-        //todo: this.multiparts = null;
     }
 
     public int execute(String url) throws HTTPException
@@ -308,36 +307,41 @@ public class HTTPMethod
         if(!localsession && !sessionCompatible(this.legalurl))
             throw new HTTPException("HTTPMethod: session incompatible url: " + this.legalurl);
 
-        if(method != null)
-            method.releaseConnection();
-        method = create();
+        if(request != null) {
+            request.close();
+	    request = null;
+        }
+
+        RequestBuilder builder = createBuilder();
 
         try {
+	    // Add defined headers
             if(headers.size() > 0) {
                 for(Header h : headers) {
-                    method.addHeader(h);
+                    builder.addHeader(h);
                 }
             }
-            if(globalparams != null) {
-                HttpParams hmp = method.getParams();
-                for(String key : globalparams.keySet()) {
-                    hmp.setParameter(key, globalparams.get(key));
-                }
-            }
-            if(params != null) {
-                HttpParams hmp = method.getParams();
-                for(String key : params.keySet()) {
-                    hmp.setParameter(key, params.get(key));
-                }
-            }
+
+	    // Add cached parameters; search in order:
+            // 1. HTTPMethod.params
+            // 2. HTTPMethod.globalparams
+            // 3. HTTPSession.localparams
+            // 4. HTTPSession.globalparams
+
+	    Params union = new Params();
+	    union.putAll(HTTPSession.getGlobalParams());
+	    union.putAll(this.session.getParams());
+	    union.putAll(HTTPMethod.globalparams);
+	    union.putAll(this.params);
+
+	    configure(builder,union);
+            setcontent(builder);
+            setAuthentication(session, this);
 
             //todo: Change the retry handler
             //httpclient.setHttpRequestRetryHandler(myRetryHandler);
             //method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new RetryHandler());
 
-            setcontent();
-
-            setAuthentication(session, this);
 
             //todo: get the protocol and port
             //URL hack = new URL(this.legalurl);
@@ -346,7 +350,10 @@ public class HTTPMethod
             //HostConfiguration hc = session.sessionClient.getHostConfiguration();
             //hc = new HostConfiguration(hc);
             //hc.setHost(hack.getHost(), hack.getPort(), handler);
-            response = session.sessionClient.execute(method);
+
+
+	    request = builder.build();
+            response = session.sessionClient.execute(request);
             int code = response.getStatusLine().getStatusCode();
             return code;
         } catch (Exception ie) {
@@ -354,6 +361,46 @@ public class HTTPMethod
         }
     }
 
+    RequestConfig
+    configure(RequestBuilder request, HTTPSession.Params params)
+	throws HTTPException
+    {
+	RequestConfigBuilder builder = RequestConfigBuilder.create();
+	for(HTTPSession.Params.Entry entry: params.entrySet()) {
+	    String key = entry.getKey();
+	    if(!HTPSession.allowableParams.contains(key))
+		throw new HTTPException("Unsupported parameter: "+ entry.getKey());
+            Object value = entry.getValue();
+
+	    switch (key) {
+	    case ALLOW_CIRCULAR_REDIRECTS:
+		builder.setCircularRedirectsAllowed((Boolean)value);
+		break;
+	    case HANDLE_REDIRECTS:
+		builder.setRedirectsEnabled((Boolean)value);
+		break;
+	    case HANDLE_AUTHENTICATION:
+		builder.setAuthenticationEnabled((Boolean)value);
+		break;
+	    case MAX_REDIRECTS:
+		builder.setMaxRedirects((Integer)value);
+		break;
+	    case SO_TIMEOUT:
+		builder.setSocketTimeout((Integer)value);
+		break;
+	    case CONNECTION_TIMEOUT
+		builder.setConnectionRequestTimeout((Integer)value);
+		break;
+  	    // NOTE: Following modifying request, not builder
+	    case USER_AGENT:
+		request.setHeader(USER_AGENT,value);
+		break;
+	    default:
+		assert(false); // should never happen
+	    }
+        }
+	return builder.build();
+    }         
 
     /**
      * Calling close will force the method to close, and will
@@ -386,16 +433,6 @@ public class HTTPMethod
 
     //////////////////////////////////////////////////
     // Accessors
-
-    public void setContext(HttpContext cxt)
-    {
-        session.setContext(cxt);
-    }
-
-    public HttpContext getContext()
-    {
-        return session.getContext();
-    }
 
     public int getStatusCode()
     {
@@ -728,4 +765,11 @@ public class HTTPMethod
 
     }
 
+
+    //////////////////////////////////////////////////
+    // Static utilities
+
+
 }
+
+ 
