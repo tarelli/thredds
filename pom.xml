@@ -282,6 +282,11 @@
       </dependency>
 
       <!-- logging -->
+      <!-- dependency>
+        <groupId>commons.logging</groupId>
+        <artifactId>commons.logging</artifactId>
+        <version>1.1.3</version>
+      </dependency-->
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
@@ -890,9 +895,9 @@
     <com.sleepycat.version>4.0.92</com.sleepycat.version>
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <commons-fileupload.version>1.2.2</commons-fileupload.version>
-    <org.apache.httpcomponents.httpcore.version>4.3</org.apache.httpcomponents.httpcore.version>
-    <org.apache.httpcomponents.httpclient.version>4.3.1</org.apache.httpcomponents.httpclient.version>
-    <org.apache.httpcomponents.httpmime.version>4.3.1</org.apache.httpcomponents.httpmime.version>
+    <org.apache.httpcomponents.httpcore.version>4.2.5</org.apache.httpcomponents.httpcore.version>
+    <org.apache.httpcomponents.httpclient.version>4.2.6</org.apache.httpcomponents.httpclient.version>
+    <org.apache.httpcomponents.httpmime.version>4.2.6</org.apache.httpcomponents.httpmime.version>
     <commons-io.version>2.4</commons-io.version>
     <derby.version>10.9.1.0</derby.version>
     <javax.activation.version>1.1.1</javax.activation.version>

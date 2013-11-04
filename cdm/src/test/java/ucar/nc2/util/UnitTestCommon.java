@@ -34,6 +34,7 @@
 package ucar.nc2.util;
 
 import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 import ucar.nc2.NetcdfFile;
 import ucar.unidata.test.Diff;
@@ -44,12 +45,11 @@ public class UnitTestCommon extends TestCase
 {
     static public boolean debug = false;
 
-    static public org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NetcdfFile.class);
-
     // Look for these to verify we have found the thredds root
     static final String[] SUBROOTS = new String[]{"cdm", "tds", "opendap"};
 
     static public final String threddsRoot = locateThreddsRoot();
+
 
     // Walk around the directory structure to locate
     // the path to a given directory.
@@ -84,6 +84,8 @@ public class UnitTestCommon extends TestCase
         }
         return null;
     }
+
+    //////////////////////////////////////////////////
 
     public void
     clearDir(File dir, boolean clearsubdirs)
@@ -135,18 +137,19 @@ public class UnitTestCommon extends TestCase
             // Diff the two print results
             Diff diff = new Diff(tag);
             StringWriter sw = new StringWriter();
-            boolean pass = !diff.doDiff(baseline,s,sw);
-            return (pass?null:sw.toString());
+            boolean pass = !diff.doDiff(baseline, s, sw);
+            return (pass ? null : sw.toString());
         } catch (Exception e) {
-            System.err.println("UnitTest: Diff failure: "+e);
+            System.err.println("UnitTest: Diff failure: " + e);
             return null;
         }
 
     }
 
-  // suppress warning message
-  public void testFakerooni() {
-    assert true;
-  }
+    // suppress warning message
+    public void testFakerooni()
+    {
+        assert true;
+    }
 }
 

@@ -32,13 +32,20 @@
 
 package ucar.nc2.util.net;
 
+import org.apache.http.Header;
+import org.apache.http.HttpMessage;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.junit.Test;
 import ucar.nc2.util.UnitTestCommon;
+import ucar.nc2.util.UnitTestLog;
 
-import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.*;
 
 public class TestHTTPSession extends UnitTestCommon
 {
+
   //////////////////////////////////////////////////
 
   // Define the test sets
@@ -74,13 +81,78 @@ public class TestHTTPSession extends UnitTestCommon
     HTTPSession session = HTTPFactory.newSession(url);
     HTTPMethod method = HTTPFactory.Get(session);
     method.execute();
-    System.out.println("Validate by examining localserver log output");
+
+    // Use special interface to access the request
+    HttpMessage req = method.debugRequest();
+    // Look for the user agent header
+    Header[] agents = req.getHeaders(HTTPSession.HEADER_USERAGENT);
+    assertFalse("User-Agent Header not found",agents.length == 0);
+    assertFalse("Multiple User-Agent Headers",agents.length > 1);
+    assertTrue(String.format("User-Agent mismatch: expected %s found:%s",
+                             globalagent,agents[0].getValue()),
+	       globalagent.equals(agents[0].getValue()));
 
     System.out.println("Test: HTTPSession.setUserAgent(" + sessionagent + ")");
     session.setUserAgent(sessionagent);
     method = HTTPFactory.Get(session);
     method.execute();
-    System.out.println("Validate by examining localserver log output");
+
+    // Use special interface to access the request
+    req = method.debugRequest();
+    // Look for the user agent header
+    agents = req.getHeaders(HTTPSession.HEADER_USERAGENT);
+    assertFalse("User-Agent Header not found",agents.length == 0);
+    assertFalse("Multiple User-Agent Headers",agents.length > 1);
+    assertTrue(String.format("User-Agent mismatch: expected %s found:%s",
+                             sessionagent,agents[0].getValue()),
+	       sessionagent.equals(agents[0].getValue()));
+
+    // Check other parameters
+
+    System.out.println("Test: HTTPSession: Misc. Parameters");
+    session.setSoTimeout(17777);
+    session.setConnectionTimeout(37777);
+    session.setMaxRedirects(111);
+    CredentialsProvider bp = new HTTPBasicProvider("anyuser","password");
+    session.setCredentialsProvider(HTTPAuthScheme.BASIC, bp);
+    //session.setAuthorizationPreemptive(true); not implemented
+
+    method = HTTPFactory.Get(session);
+    method.execute();
+
+    // Use special interface to access the request
+    HttpMessage dbgreq = method.debugRequest();
+    RequestConfig cfg = ((HttpRequestBase)dbgreq).getConfig();
+
+    System.out.println("Test: Circular Redirects");
+    assertTrue("*** Fail: Circular Redirects",
+               cfg.isCircularRedirectsAllowed());
+    System.out.println("*** Pass: Circular Redirects");
+
+    System.out.println("Test: Max Redirects");
+    assertTrue("*** Fail: Max Redirects",
+               cfg.getMaxRedirects() == 111);
+    System.out.println("*** Pass: Max Redirects");
+
+    System.out.println("Test: SO Timeout");
+    assertTrue("*** Fail: SO Timeout",
+               cfg.getSocketTimeout() == 17777);
+    System.out.println("*** Pass: SO Timeout");
+
+    System.out.println("Test: Connection Timeout");
+    assertTrue("*** Fail: Connection Timeout",
+               cfg.getConnectTimeout() == 37777);
+    System.out.println("*** Pass: SO Timeout");
+
+    System.out.println("Test: Authentication Handled");
+    assertTrue("*** Fail: Authentication Handled",
+               cfg.isAuthenticationEnabled());
+    System.out.println("*** Pass: Authentication Handled");
+
+    System.out.println("Test: Redirects Handled");
+    assertTrue("*** Fail: Redirects Handled",
+               cfg.isRedirectsEnabled());
+    System.out.println("*** Pass: Redirects Handled");
 
     assertTrue("TestHTTPSession.testAgent", true);
   }
