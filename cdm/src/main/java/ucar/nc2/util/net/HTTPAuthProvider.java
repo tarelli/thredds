@@ -39,6 +39,7 @@ import org.apache.http.client.CredentialsProvider;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * HTTPAuthProvider contains the necessary information to support a given
@@ -53,14 +54,14 @@ import java.io.Serializable;
  * etc.)
  * <p/>
  * HTTPAuthProvider implements the CredentialsProvider interface.
- *
+ * <p/>
  * With httpclient 4.2, credentials caching is pushed to the
  * credentials provider. So caching is provided here.
  * However, we need a finer grain of caching than provided
  * by AuthScope, so we use the full url.
  */
 
-public class HTTPAuthProvider implements Serializable, CredentialsProvider
+public class HTTPAuthProvider implements CredentialsProvider
 {
     static final int MAX_RETRIES = 3;
 
@@ -82,22 +83,21 @@ public class HTTPAuthProvider implements Serializable, CredentialsProvider
     static public final String WWW_AUTH_RESP = "Authorization";   // from HttpMethodDirector
     static public final String PROXY_AUTH_RESP = "Proxy-Authorization"; // from HttpMethodDirector
 
-    static private org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(HTTPAuthProvider.class);
 
     //////////////////////////////////////////////////
     // Instance variables
 
-    protected String url = null;
-    protected HTTPMethod method = null;
-    protected int retryCount;
+    protected HTTPAuthStore store = null;
+    protected int retryCount = 0;
+    protected HTTPAuthScope authscope = null;
 
     //////////////////////////////////////////////////
     // Constructor(s)
 
-    public HTTPAuthProvider(String url, HTTPMethod method)
+    public HTTPAuthProvider(HTTPAuthStore store, HTTPAuthScope authscope)
     {
-        this.url = url;
-        this.method = method;
+        this.store = store;
+        this.authscope = authscope;
         this.retryCount = MAX_RETRIES;
     }
 
@@ -105,7 +105,7 @@ public class HTTPAuthProvider implements Serializable, CredentialsProvider
     // Credentials Provider Interface
 
     public Credentials
-    getCredentials(AuthScope scope)//AuthScheme authscheme,String host,int port,boolean isproxy)
+    getCredentials(AuthScope scope)
     {
         // Is this still true in httpclient 4.2.x?
         // There appears to be a bug in HttpMethodDirector such that
@@ -119,53 +119,44 @@ public class HTTPAuthProvider implements Serializable, CredentialsProvider
         //}
         //retryCount--;
 
-	// See if the credentials have been cached.
-        Credentials credentials = HTTPAuthStore.getCredentials(this.url);
-	if(credentials != null)
-	    return credentials;
+        // Verify that the scope argument "subsumes"
+        // this.authscope
+        if (!HTTPAuthScope.subsumes(scope, this.authscope))
+            throw new IllegalStateException("HTTPAuthProvider: scope :: authscope mismatch");
 
-	// Not cached.
+        // See if the credentials have been cached.
+        Credentials credentials = this.store.getCredentials(scope);
+        if (credentials != null)
+            return credentials;
 
-        // Figure out what scheme is being used
-        HTTPAuthScheme scheme;
+        // Not cached.
 
-        scheme = HTTPAuthScheme.schemeForName(scope.getScheme());
+        HTTPAuthScheme scheme = HTTPAuthScheme.schemeForName(scope.getScheme());
 
-        if(scheme == null) {
-            LOG.error("HTTPAuthProvider: unsupported scheme: " + scope.getScheme());
-            //throw new CredentialsNotAvailableException();
-            return null;
-        }
+        if (scheme == null)
+            throw new IllegalStateException("HTTPAuthProvider: unsupported scheme: " + scope.getScheme());
 
         // search for matching authstore entries
-        HTTPAuthStore.Entry[] matches = HTTPAuthStore.search(new HTTPAuthStore.Entry(scheme, url, null));
-        if(matches.length == 0) {
-            LOG.debug("HTTPAuthProvider: no match for (" + scheme + "," + url + ")");
-            //throw new CredentialsNotAvailableException();
-            return null;
-        }
+        List<HTTPAuthStore.Entry> matches = this.store.search(this.authscope);
+        if (matches.size() == 0)
+            throw new IllegalStateException("HTTPAuthProvider: no match for:" + this.authscope);
 
-        HTTPAuthStore.Entry entry = matches[0];
-        LOG.debug("HTTPAuthProvider: AuthStore row: " + entry.toString());
-        CredentialsProvider provider = entry.creds;
+        // Choose the most restrictive
+        HTTPAuthStore.Entry entry = matches.get(0);
+        CredentialsProvider provider = entry.provider;
 
-        if(provider == null) {
-            LOG.debug("HTTPAuthProvider: no credentials provider provided");
-            //throw new CredentialsNotAvailableException();
-            return null;
-        }
+        if (provider == null)
+            throw new IllegalStateException("HTTPAuthProvider: no credentials provider provided");
 
+        // If this is an instance of
         // invoke the (real) credentials provider
         // Use the incoming parameters
         credentials = provider.getCredentials(scope);
-        if(credentials == null) {
-            LOG.debug("HTTPAuthProvider: cannot obtain credentials");
-            //throw new CredentialsNotAvailableException();
-            return null;
-        }
+        if (credentials == null)
+            throw new IllegalStateException("HTTPAuthProvider: cannot obtain credentials");
 
-	// Insert into the credentials cache
-	HTTPAuthStore.setCredentials(url,credentials);
+        // Insert into the credentials cache
+        this.store.setCredentials(this.authscope, credentials);
 
         return credentials;
     }
@@ -176,6 +167,8 @@ public class HTTPAuthProvider implements Serializable, CredentialsProvider
 
     public void clear()
     {
+        System.err.println("HTTPAuthProvider.clear called");
+        System.err.flush();
     }
 
     ///////////////////////////////////////////////////
@@ -184,24 +177,8 @@ public class HTTPAuthProvider implements Serializable, CredentialsProvider
     public String
     toString()
     {
-        return "HTTPAuthProvider(" + url + ")";
+        return "HTTPAuthProvider(" + this.authscope + ")";
     }
-
-    ///////////////////////////////////////////////////
-    // (De-)Serialization support
-
-    private void writeObject(java.io.ObjectOutputStream ostream)
-        throws IOException
-    {
-        ostream.writeObject(url);
-    }
-
-    private void readObject(java.io.ObjectInputStream istream)
-        throws IOException, ClassNotFoundException
-    {
-        url = (String) istream.readObject();
-    }
-
 
 }//HTTPAuthProvider
 
