@@ -59,7 +59,7 @@ import java.util.List;
  * by AuthScope, so we use the full url.
  */
 
-public class HTTPAuthProvider implements Serializable, CredentialsProvider
+public class HTTPAuthProvider implements CredentialsProvider
 {
     static final int MAX_RETRIES = 3;
 

@@ -112,14 +112,14 @@ public class TestAuth extends UnitTestCommon
 
         // Serializable Interface
         private void writeObject(java.io.ObjectOutputStream oos)
-            throws IOException
+                throws IOException
         {
             oos.writeObject(this.username);
             oos.writeObject(this.password);
         }
 
         private void readObject(java.io.ObjectInputStream ois)
-            throws IOException, ClassNotFoundException
+                throws IOException, ClassNotFoundException
         {
             this.username = (String) ois.readObject();
             this.password = (String) ois.readObject();
@@ -162,11 +162,11 @@ public class TestAuth extends UnitTestCommon
     testSSH() throws Exception
     {
         String[] sshurls = {
-            "https://thredds-test.ucar.edu:8444/dts/b31.dds"
+                "https://thredds-test.ucar.edu:8444/dts/b31.dds"
         };
 
         System.out.println("*** Testing: Simple Https");
-        for(String url : sshurls) {
+        for (String url : sshurls) {
             System.out.println("*** URL: " + url);
             HTTPSession session = HTTPFactory.newSession(url);
             HTTPMethod method = HTTPFactory.Get(session);
@@ -242,7 +242,7 @@ public class TestAuth extends UnitTestCommon
     {
         System.err.println("*** Testing: Http Basic Password Authorization Using direct credentials");
 
-        for(AuthDataBasic data : basictests) {
+        for (AuthDataBasic data : basictests) {
             Credentials cred = new UsernamePasswordCredentials(data.user, data.password);
             System.err.println("*** URL: " + data.url);
             // Test local credentials provider
@@ -266,7 +266,7 @@ public class TestAuth extends UnitTestCommon
                 System.err.flush();
                 pass = (status == 200 || status == 404); // non-existence is ok
             }
-            if(pass)
+            if (pass)
                 assertTrue("testBasic", true);
             else
                 assertTrue("testBasic", false);
@@ -331,7 +331,7 @@ public class TestAuth extends UnitTestCommon
 
             String server;
             String path;
-            if(remote) {
+            if (remote) {
                 server = "thredds-test.ucar.edu:8843";
                 path = "/dts/b31.dds";
             } else {
@@ -345,7 +345,7 @@ public class TestAuth extends UnitTestCommon
             // See if the client keystore exists
             String keystore = threddsRoot + KEYDIR + "/" + CLIENTKEY;
             File tmp = new File(keystore);
-            if(!tmp.exists() || !tmp.canRead())
+            if (!tmp.exists() || !tmp.canRead())
                 throw new Exception("Cannot read client key store: " + keystore);
 
             CredentialsProvider provider = new HTTPSSLProvider(keystore, CLIENTPWD);
@@ -362,7 +362,7 @@ public class TestAuth extends UnitTestCommon
             int status = method.execute();
             System.err.printf("Execute: status code = %d\n", status);
             pass = (status == 200);
-            if(pass)
+            if (pass)
                 assertTrue("testKeystore", true);
             else
                 assertTrue("testKeystore", false);
@@ -499,7 +499,7 @@ public class TestAuth extends UnitTestCommon
                 msg = pass ? "Local test passed" : "Local test failed";
                 System.err.println("\t" + msg);
             }
-            if(pass)
+            if (pass)
                 assertTrue("testProxy", true);
             else
                 assertTrue("testProxy", false);
