@@ -35,10 +35,12 @@ package ucar.nc2.util.net;
 
 
 import org.apache.http.auth.AuthScope;
+import org.apache.http.util.LangUtils;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 /**
  * The standard AuthScope does not provide sufficiently
@@ -57,7 +59,7 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     public static final String ANY_PATH = null;
 
     public static final HTTPAuthScope ANY
-            = new HTTPAuthScope(ANY_HOST, ANY_PORT, ANY_SCHEME, ANY_PRINCIPAL, ANY_PATH);
+        = new HTTPAuthScope(ANY_HOST, ANY_PORT, ANY_SCHEME, ANY_PRINCIPAL, ANY_PATH);
 
     //////////////////////////////////////////////////
     // Instance Variables
@@ -77,19 +79,13 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     public HTTPAuthScope(String host, int port, String scheme, String principal, String path)
     {
         super(host, port, ANY_REALM, scheme); // set but ignore
-        this.authscheme = scheme;
-        this.realm = realm;
-        this.host = host;
-        this.realm = null;
-        this.principal = principal;
-        this.path = path;
+        setup(host, port, scheme, principal, path);
     }
 
     public HTTPAuthScope(String host, int port, String realm, String scheme)
     {
         this(host, port, scheme, ANY_PRINCIPAL, ANY_PATH);
     }
-
 
     public HTTPAuthScope(AuthScope scope, String principal, String path)
     {
@@ -102,28 +98,35 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     }
 
     public HTTPAuthScope(String surl)
-            throws HTTPException
+        throws HTTPException
     {
         this(surl, ANY_SCHEME);
     }
 
     public HTTPAuthScope(String surl, String authscheme)
-            throws HTTPException
+        throws HTTPException
     {
         super(ANY_HOST, ANY_PORT, ANY_REALM, ANY_SCHEME); // set but ignore
         URI uri = decompose(surl);
-        this.authscheme = authscheme;
-        this.host = uri.getHost();
-        this.port = uri.getPort();
-        this.principal = uri.getUserInfo();
-        this.path = uri.getPath();
+        setup(uri.getHost(),uri.getPort(),authscheme,uri.getUserInfo(),uri.getPath());
+    }
+
+    protected void setup(String host, int port, String scheme, String principal, String path)
+    {
+        // Use the same rules as AuthScope v-a-v capitalization
+        this.host = (host == null) ? ANY_HOST : host.toLowerCase(Locale.ENGLISH);
+        this.port = (port < 0) ? ANY_PORT : port;
+        this.realm = ANY_REALM;
+        this.authscheme = (scheme == null) ? ANY_SCHEME : scheme.toUpperCase(Locale.ENGLISH);
+        this.principal = (principal == null) ? ANY_PRINCIPAL : principal;
+        this.path = (path == null) ? ANY_PATH : path;
     }
 
     //////////////////////////////////////////////////	
     // URL Decomposition
 
     static URI decompose(String suri)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             URI uri = new URI(suri);
@@ -181,11 +184,11 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     public String toString()
     {
         return String.format("%s:%s%s%s%s",
-                getAuthScheme(),
-                (getPrincipal() == null ? "" : getPrincipal() + "@"),
-                getHost(),
-                (getPort() < 0 ? "" : ":" + getPort()),
-                getPath());
+            (getAuthScheme() == ANY_SCHEME ?  "*" : getAuthScheme()),
+            (getPrincipal() == ANY_PRINCIPAL ? "*@" : getPrincipal() + "@"),
+            (getHost() == ANY_HOST ? "*" : getHost()),
+            (getPort() < 0 ? "" : ":" + getPort()),
+            (getPath() == ANY_PATH ? "*" : getPath()));
     }
 
 
@@ -193,7 +196,7 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     // (De-)Serialization
 
     private void writeObject(java.io.ObjectOutputStream oos)
-            throws IOException
+        throws IOException
     {
         oos.writeObject(getAuthScheme());
         oos.writeObject(getHost());
@@ -205,7 +208,7 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     }
 
     private void readObject(java.io.ObjectInputStream ois)
-            throws IOException, ClassNotFoundException
+        throws IOException, ClassNotFoundException
     {
         this.authscheme = (String) ois.readObject();
         this.host = (String) ois.readObject();
@@ -231,21 +234,21 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
      */
     static boolean equivalent(HTTPAuthScope a1, HTTPAuthScope a2)
     {
-        if (a1 == null || a2 == null)
+        if(a1 == null || a2 == null)
             throw new NullPointerException();
-        if (a1.getScheme() != ANY_SCHEME && a2.getScheme() != ANY_SCHEME
-                && !a1.getScheme().equals(a2.getScheme()))
+        if(a1.getScheme() != ANY_SCHEME && a2.getScheme() != ANY_SCHEME
+            && !a1.getScheme().equals(a2.getScheme()))
             return false;
-        if (a1.getHost() != ANY_HOST && a2.getHost() != ANY_HOST
-                && !a1.getHost().equals(a2.getHost()))
+        if(a1.getHost() != ANY_HOST && a2.getHost() != ANY_HOST
+            && !a1.getHost().equals(a2.getHost()))
             return false;
-        if (a1.getPort() != ANY_PORT && a2.getPort() != ANY_PORT
-                && a1.getPort() != a2.getPort())
+        if(a1.getPort() != ANY_PORT && a2.getPort() != ANY_PORT
+            && a1.getPort() != a2.getPort())
             return false;
-        if (a1.getPath() == ANY_PATH || a2.getPath() == ANY_PATH)
+        if(a1.getPath() == ANY_PATH || a2.getPath() == ANY_PATH)
             return true;
-        if (a1.getPath().startsWith(a2.getPath())
-                || a2.getPath().startsWith(a1.getPath()))
+        if(a1.getPath().startsWith(a2.getPath())
+            || a2.getPath().startsWith(a1.getPath()))
             return true;
         return false;
     }
@@ -253,11 +256,31 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
     @Override
     public boolean equals(Object other)
     {
-        if (other == null || !(other instanceof HTTPAuthScope))
+        if(other == null || !(other instanceof AuthScope))
             return false;
-        HTTPAuthScope has = (HTTPAuthScope) other;
-        return (equivalent(this, (HTTPAuthScope) other)
-                && this.getPath().equals(has.getPath()));
+        AuthScope as = (AuthScope) other;
+        // So it turns out that AuthScope#equals does not
+        // test for ANY_PORT, so we need to fix here.
+        if(true) {
+            boolean b1 = LangUtils.equals(this.host, as.getHost());
+            int aport = as.getPort();
+            boolean b2 = (this.port == aport || this.port == ANY_PORT || aport == ANY_PORT);
+            boolean b3 = LangUtils.equals(this.realm, as.getRealm());
+            boolean b4 = LangUtils.equals(this.authscheme, as.getScheme());
+            if(!(b1 && b2 && b3 && b4))
+                return false;
+        } else if(!super.equals(other))
+            return false;
+        HTTPAuthScope has;
+        if(as instanceof HTTPAuthScope)
+            has = (HTTPAuthScope) as;
+        else
+            has = (new HTTPAuthScope(as));
+
+        boolean b1 = LangUtils.equals(this.principal, has.principal);
+        // Special comparison for path
+        boolean b2 = (this.path == ANY_PATH || has.path == ANY_PATH || this.path.equals(has.path));
+        return b1 && b2;
     }
 
     /**
@@ -266,16 +289,16 @@ public class HTTPAuthScope extends AuthScope implements Cloneable
      */
     static boolean subsumes(AuthScope as, HTTPAuthScope has)
     {
-        if (as == null || has == null)
+        if(as == null || has == null)
             throw new NullPointerException();
-        if (as.getScheme() != ANY_SCHEME && has.getScheme() != ANY_SCHEME
-                && !as.getScheme().equals(has.getScheme()))
+        if(as.getScheme() != ANY_SCHEME && has.getScheme() != ANY_SCHEME
+            && !as.getScheme().equals(has.getScheme()))
             return false;
-        if (as.getHost() != ANY_HOST && has.getHost() != ANY_HOST
-                && !as.getHost().equals(has.getHost()))
+        if(as.getHost() != ANY_HOST && has.getHost() != ANY_HOST
+            && !as.getHost().equals(has.getHost()))
             return false;
-        if (as.getPort() != ANY_PORT && has.getPort() != ANY_PORT
-                && as.getPort() != has.getPort())
+        if(as.getPort() != ANY_PORT && has.getPort() != ANY_PORT
+            && as.getPort() != has.getPort())
             return false;
         return true;
     }

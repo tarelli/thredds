@@ -43,18 +43,12 @@ import java.util.*;
 
 import net.jcip.annotations.NotThreadSafe;
 import org.apache.http.*;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.*;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import ucar.nc2.util.EscapeStrings;
-
-import javax.print.URIException;
 
 import static ucar.nc2.util.net.HTTPSession.*;
 
@@ -182,21 +176,21 @@ public class HTTPMethod
     // Constructor(s)
 
     public HTTPMethod(HTTPSession.Methods m)
-            throws HTTPException
+        throws HTTPException
     {
         this(m, null, null);
     }
 
     public HTTPMethod(HTTPSession.Methods m, String url)
-            throws HTTPException
+        throws HTTPException
     {
         this(m, null, url);
     }
 
     public HTTPMethod(HTTPSession.Methods m, HTTPSession session, String url)
-            throws HTTPException
+        throws HTTPException
     {
-        if (url == null && session != null)
+        if(url == null && session != null)
             url = session.getURL();
         try {
             new URL(url);
@@ -204,7 +198,7 @@ public class HTTPMethod
             throw new HTTPException("Malformed URL: " + url, mue);
         }
 
-        if (session == null) {
+        if(session == null) {
             session = HTTPFactory.newSession(url);
             localsession = true;
         }
@@ -221,13 +215,13 @@ public class HTTPMethod
 
     protected HttpRequestBase
     createRequest()
-            throws HTTPException
+        throws HTTPException
     {
         HttpRequestBase method = null;
         // Unfortunately, the apache httpclient 3 code has a restrictive
         // notion of a legal url, so we need to encode it before use
         String urlencoded = EscapeStrings.escapeURL(this.legalurl);
-        if (urlencoded == null)
+        if(urlencoded == null)
             throw new HTTPException("Malformed url: " + this.legalurl);
 
         switch (this.methodclass) {
@@ -256,11 +250,11 @@ public class HTTPMethod
     {
         switch (this.methodclass) {
         case Put:
-            if (this.content != null)
+            if(this.content != null)
                 ((HttpPut) request).setEntity(this.content);
             break;
         case Post:
-            if (this.content != null)
+            if(this.content != null)
                 ((HttpPost) request).setEntity(this.content);
             break;
         case Head:
@@ -273,23 +267,23 @@ public class HTTPMethod
     }
 
     public int execute()
-            throws HTTPException
+        throws HTTPException
     {
-        if (closed)
+        if(closed)
             throw new HTTPException("HTTPMethod: attempt to execute closed method");
-        if (this.legalurl == null)
+        if(this.legalurl == null)
             throw new HTTPException("HTTPMethod: no url specified");
-        if (!localsession && !sessionCompatible(this.legalurl))
+        if(!localsession && !sessionCompatible(this.legalurl))
             throw new HTTPException("HTTPMethod: session incompatible url: " + this.legalurl);
 
-        if (this.request != null)
+        if(this.request != null)
             this.request.releaseConnection();
         this.request = createRequest();
 
         try {
             // Add any defined headers
-            if (headers.size() > 0) {
-                for (Header h : headers) {
+            if(headers.size() > 0) {
+                for(Header h : headers) {
                     request.addHeader(h);
                 }
             }
@@ -297,7 +291,7 @@ public class HTTPMethod
             // Apply settings
             configure(this.request);
             setcontent(this.request);
-            setAuthentication();
+            HTTPAuthScope scope = setAuthentication();
 
             //todo: Change the retry handler
             //httpclient.setHttpRequestRetryHandler(myRetryHandler);
@@ -313,6 +307,13 @@ public class HTTPMethod
 
             this.response = session.execute(request);
             int code = response.getStatusLine().getStatusCode();
+
+            // On authorization error, clear entries from the credentials cache
+            if(code == HttpStatus.SC_UNAUTHORIZED
+                || code == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED) {
+                this.session.invalidate(scope);
+            }
+
             return code;
 
         } catch (Exception ie) {
@@ -322,40 +323,42 @@ public class HTTPMethod
 
     protected void
     configure(HttpRequestBase request)
-            throws HTTPException
+        throws HTTPException
     {
         // merge global and local settings.
         Settings merge = new Settings();
         Settings s = session.getGlobalSettings();
-        for (String key : s.getNames()) {
+        for(String key : s.getNames()) {
             merge.setParameter(key, s.getParameter(key));
         }
         s = session.getSettings();
-        for (String key : s.getNames()) {
+        for(String key : s.getNames()) {
             merge.setParameter(key, s.getParameter(key));
         }
-        for (String key : merge.getNames()) {
+        for(String key : merge.getNames()) {
             Object value = merge.getParameter(key);
             HttpParams hmp = request.getParams();
 
-            if (key.equals(ALLOW_CIRCULAR_REDIRECTS)) {
+            if(key.equals(ALLOW_CIRCULAR_REDIRECTS)) {
                 hmp.setParameter(ALLOW_CIRCULAR_REDIRECTS, (Boolean) value);
-            } else if (key.equals(HANDLE_REDIRECTS)) {
+            } else if(key.equals(HANDLE_REDIRECTS)) {
                 hmp.setParameter(HANDLE_REDIRECTS, (Boolean) value);
-            } else if (key.equals(HANDLE_AUTHENTICATION)) {
+            } else if(key.equals(HANDLE_AUTHENTICATION)) {
                 hmp.setParameter(HANDLE_AUTHENTICATION, (Boolean) value);
-            } else if (key.equals(MAX_REDIRECTS)) {
+            } else if(key.equals(MAX_REDIRECTS)) {
                 hmp.setParameter(MAX_REDIRECTS, (Integer) value);
-            } else if (key.equals(SO_TIMEOUT)) {
+            } else if(key.equals(SO_TIMEOUT)) {
                 hmp.setParameter(SO_TIMEOUT, (Integer) value);
-            } else if (key.equals(CONN_TIMEOUT)) {
+            } else if(key.equals(CONN_TIMEOUT)) {
                 hmp.setParameter(CONN_TIMEOUT, (Integer) value);
                 // NOTE: Following modifying request, not builder
-            } else if (key.equals(USER_AGENT)) {
+            } else if(key.equals(USER_AGENT)) {
                 request.setHeader(HEADER_USERAGENT, value.toString());
-            } else if (key.equals(PROXY)) {
+            } else if(key.equals(COMPRESSION)) {
+                request.setHeader(ACCEPT_ENCODING, value.toString());
+            } else if(key.equals(PROXY)) {
                 Proxy proxy = (Proxy) value;
-                if (session.sessionClient != null && proxy != null && proxy.host != null) {
+                if(session.sessionClient != null && proxy != null && proxy.host != null) {
                     HttpHost httpproxy = new HttpHost(proxy.host, proxy.port);
                     session.sessionClient.getParams().setParameter(PROXY, httpproxy);
                 }
@@ -373,22 +376,22 @@ public class HTTPMethod
     public synchronized void
     close()
     {
-        if (closed)
+        if(closed)
             return; // multiple calls ok
         closed = true; // mark as closed to prevent recursive calls
-        if (methodstream != null) {
+        if(methodstream != null) {
             try {
                 methodstream.close();
             } catch (IOException ioe) {/*failure is ok*/}
             ;
             methodstream = null;
         }
-        if (this.request != null) {
+        if(this.request != null) {
             this.request.releaseConnection();
             this.request = null;
         }
         session.removeMethod(this);
-        if (localsession && session != null) {
+        if(localsession && session != null) {
             session.close();
             session = null;
         }
@@ -420,7 +423,7 @@ public class HTTPMethod
 
     public boolean canHoldContent()
     {
-        if (request == null)
+        if(request == null)
             return false;
         return !(request instanceof HttpHead);
     }
@@ -432,14 +435,14 @@ public class HTTPMethod
 
     public InputStream getResponseAsStream()
     {
-        if (closed)
+        if(closed)
             throw new IllegalStateException("HTTPMethod: method is closed");
-        if (this.methodstream != null) { // duplicate: caller's problem
+        if(this.methodstream != null) { // duplicate: caller's problem
             HTTPSession.log.warn("HTTPRequest.getResponseBodyAsStream: Getting method stream multiple times");
         } else { // first time
             HTTPMethodStream stream = null;
             try {
-                if (response == null) return null;
+                if(response == null) return null;
                 stream = new HTTPMethodStream(response.getEntity().getContent(), this);
             } catch (Exception e) {
                 stream = null;
@@ -452,7 +455,7 @@ public class HTTPMethod
     public byte[] getResponseAsBytes(int maxbytes)
     {
         byte[] contents = getResponseAsBytes();
-        if (contents.length > maxbytes) {
+        if(contents.length > maxbytes) {
             byte[] result = new byte[maxbytes];
             System.arraycopy(contents, 0, result, 0, maxbytes);
             contents = result;
@@ -462,10 +465,10 @@ public class HTTPMethod
 
     public byte[] getResponseAsBytes()
     {
-        if (closed)
+        if(closed)
             throw new IllegalStateException("HTTPMethod: method is closed");
         byte[] content = null;
-        if (response != null)
+        if(response != null)
             try {
                 content = EntityUtils.toByteArray(response.getEntity());
             } catch (Exception e) {/*ignore*/}
@@ -474,10 +477,10 @@ public class HTTPMethod
 
     public String getResponseAsString(String charset)
     {
-        if (closed)
+        if(closed)
             throw new IllegalStateException("HTTPMethod: method is closed");
         String content = null;
-        if (response != null)
+        if(response != null)
             try {
                 Charset cset = Charset.forName(charset);
                 content = EntityUtils.toString(response.getEntity(), cset);
@@ -494,7 +497,7 @@ public class HTTPMethod
     public void setMethodHeaders(List<Header> headers) throws HTTPException
     {
         try {
-            for (Header h : headers) {
+            for(Header h : headers) {
                 this.headers.add(h);
             }
         } catch (Exception e) {
@@ -518,7 +521,7 @@ public class HTTPMethod
 
     public Header getRequestHeader(String name)
     {
-        if (this.request == null)
+        if(this.request == null)
             return null;
         try {
             return (this.request.getFirstHeader(name));
@@ -529,7 +532,7 @@ public class HTTPMethod
 
     public Header[] getRequestHeaders()
     {
-        if (this.request == null)
+        if(this.request == null)
             return null;
         try {
             Header[] hs = this.request.getAllHeaders();
@@ -590,7 +593,7 @@ public class HTTPMethod
     public String getProtocolVersion()
     {
         String ver = null;
-        if (request != null) {
+        if(request != null) {
             ver = request.getProtocolVersion().toString();
         }
         return ver;
@@ -662,7 +665,7 @@ public class HTTPMethod
     {
         // Remove any trailing constraint
         String sessionurl = HTTPSession.getCanonicalURL(this.session.getURL());
-        if (sessionurl == null) return true; // always compatible
+        if(sessionurl == null) return true; // always compatible
         other = HTTPSession.getCanonicalURL(other);
         return compatibleURL(sessionurl, other);
     }
@@ -673,30 +676,30 @@ public class HTTPMethod
      * which scheme(s) will be
      * encountered, so most testing
      * occurs in HTTPAuthProvider
+     *
+     * @return an authprovider encapsulting the request
      */
 
-    synchronized protected void
+    synchronized protected HTTPAuthScope
     setAuthentication()
-            throws HTTPException
+        throws HTTPException
     {
         String surl = session.getURL();
         // Creat an httpauthscope from the url
         HTTPAuthScope scope;
-        if (surl == null)
+        if(surl == null)
             scope = HTTPAuthScope.ANY;
         else
-            scope = new HTTPAuthScope(surl, HTTPAuthScheme.BASIC.getSchemeName());
+            scope = new HTTPAuthScope(surl, HTTPAuthPolicy.BASIC);
 
         // Provide a credentials (provider) to enact the process
-        CredentialsProvider cp = new HTTPAuthProvider(session.getAuthStore(), scope);
+        HTTPAuthProvider hap = new HTTPAuthProvider(this.session.getAuthStore(),
+            scope);
 
         // New in httpclient 4.2; will need to change in 4.3
-        this.session.setAuthentication(cp);
+        this.session.setAuthentication(hap);
 
-        // Do we still need this?
-        //HttpParams hcp = session.sessionClient.getConnectionManager().getParams();
-        //hcp.setParameter(CredentialsProvider.PROVIDER, cp);
-
+        return scope;
     }
 
     /**
@@ -704,13 +707,13 @@ public class HTTPMethod
      */
     static protected boolean compatibleURL(String u1, String u2)
     {
-        if (u1 == u2) return true;
-        if (u1 == null) return false;
-        if (u2 == null) return false;
+        if(u1 == u2) return true;
+        if(u1 == null) return false;
+        if(u2 == null) return false;
 
-        if (u1.equals(u2)
-                || u1.startsWith(u2)
-                || u2.startsWith(u1)) return true;
+        if(u1.equals(u2)
+            || u1.startsWith(u2)
+            || u2.startsWith(u1)) return true;
 
         // Check piece by piece
         URI uu1;
@@ -741,8 +744,8 @@ public class HTTPMethod
         // protocols comparison
         String s1 = uu1.getScheme();
         String s2 = uu2.getScheme();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !s1.equals(s2))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !s1.equals(s2))
             return false;
 
         // Match user info; differs from table above
@@ -753,19 +756,19 @@ public class HTTPMethod
         // !null !null  match = s1.equals(s2)
         s1 = uu1.getUserInfo();
         s2 = uu2.getUserInfo();
-        if (s1 != null
-                && (s2 == null || !s1.equals(s2)))
+        if(s1 != null
+            && (s2 == null || !s1.equals(s2)))
             return false;
 
         // hosts must be same
         s1 = uu1.getHost();
         s2 = uu2.getHost();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !s1.equals(s2))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !s1.equals(s2))
             return false;
 
         // ports must be the same
-        if (uu1.getPort() != uu2.getPort())
+        if(uu1.getPort() != uu2.getPort())
             return false;
 
         // paths must have prefix relationship
@@ -778,8 +781,8 @@ public class HTTPMethod
         // !null !null  match = (s1.startsWith(s2)||s2.startsWith(s1))
         s1 = uu1.getRawPath();
         s2 = uu2.getRawPath();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !(s1.startsWith(s2) || s2.startsWith(s1)))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !(s1.startsWith(s2) || s2.startsWith(s1)))
             return false;
 
         return true;

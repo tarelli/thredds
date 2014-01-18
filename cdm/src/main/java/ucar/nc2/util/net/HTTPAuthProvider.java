@@ -33,11 +33,9 @@
 
 package ucar.nc2.util.net;
 
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
+import org.apache.http.auth.*;
 import org.apache.http.client.CredentialsProvider;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -61,7 +59,7 @@ import java.util.List;
  * by AuthScope, so we use the full url.
  */
 
-public class HTTPAuthProvider implements CredentialsProvider
+public class HTTPAuthProvider implements Serializable, CredentialsProvider
 {
     static final int MAX_RETRIES = 3;
 
@@ -83,6 +81,10 @@ public class HTTPAuthProvider implements CredentialsProvider
     static public final String WWW_AUTH_RESP = "Authorization";   // from HttpMethodDirector
     static public final String PROXY_AUTH_RESP = "Proxy-Authorization"; // from HttpMethodDirector
 
+
+    //////////////////////////////////////////////////
+
+    static boolean TESTING = true;
 
     //////////////////////////////////////////////////
     // Instance variables
@@ -121,42 +123,48 @@ public class HTTPAuthProvider implements CredentialsProvider
 
         // Verify that the scope argument "subsumes"
         // this.authscope
-        if (!HTTPAuthScope.subsumes(scope, this.authscope))
+        if(!HTTPAuthScope.subsumes(scope, this.authscope))
             throw new IllegalStateException("HTTPAuthProvider: scope :: authscope mismatch");
 
         // See if the credentials have been cached.
         Credentials credentials = this.store.getCredentials(scope);
-        if (credentials != null)
+        if(credentials != null) {
+            if(TESTING)
+                System.err.println("Using cached credentials: "+credentials);
             return credentials;
+        }
 
         // Not cached.
 
-        HTTPAuthScheme scheme = HTTPAuthScheme.schemeForName(scope.getScheme());
+        String scheme = scope.getScheme();
 
-        if (scheme == null)
+        if(scheme == null)
             throw new IllegalStateException("HTTPAuthProvider: unsupported scheme: " + scope.getScheme());
 
         // search for matching authstore entries
         List<HTTPAuthStore.Entry> matches = this.store.search(this.authscope);
-        if (matches.size() == 0)
+        if(matches.size() == 0)
             throw new IllegalStateException("HTTPAuthProvider: no match for:" + this.authscope);
 
         // Choose the most restrictive
         HTTPAuthStore.Entry entry = matches.get(0);
         CredentialsProvider provider = entry.provider;
 
-        if (provider == null)
+        if(provider == null)
             throw new IllegalStateException("HTTPAuthProvider: no credentials provider provided");
 
         // If this is an instance of
         // invoke the (real) credentials provider
         // Use the incoming parameters
         credentials = provider.getCredentials(scope);
-        if (credentials == null)
+        if(credentials == null)
             throw new IllegalStateException("HTTPAuthProvider: cannot obtain credentials");
 
         // Insert into the credentials cache
-        this.store.setCredentials(this.authscope, credentials);
+        this.store.cacheCredentials(this.authscope, credentials);
+
+        if(TESTING)
+            System.err.println("Caching credentials: "+credentials);
 
         return credentials;
     }
@@ -167,8 +175,7 @@ public class HTTPAuthProvider implements CredentialsProvider
 
     public void clear()
     {
-        System.err.println("HTTPAuthProvider.clear called");
-        System.err.flush();
+        this.store.clear();
     }
 
     ///////////////////////////////////////////////////
