@@ -33,8 +33,6 @@
 
 package ucar.nc2.util.net;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.io.*;
 
@@ -80,14 +78,19 @@ class HTTPAuthStore implements Serializable
     //////////////////////////////////////////////////////////////////////////
 
     static public org.slf4j.Logger log
-            = org.slf4j.LoggerFactory.getLogger(HTTPSession.class);
+        = org.slf4j.LoggerFactory.getLogger(HTTPSession.class);
 
     static public HTTPAuthStore DEFAULTS = new HTTPAuthStore(true);
 
     //////////////////////////////////////////////////
     // Constants
 
-    static public final HTTPAuthScheme DEFAULT_SCHEME = HTTPAuthScheme.BASIC;
+    static public final String DEFAULT_SCHEME = HTTPAuthPolicy.BASIC;
+
+    //////////////////////////////////////////////////
+    // Class variables
+
+    static public boolean TESTING = true;
 
     //////////////////////////////////////////////////
     // Type Decls
@@ -115,12 +118,12 @@ class HTTPAuthStore implements Serializable
         public int compare(Entry e1, Entry e2)
         {
             // assert e1.scope equivalent e2.scope
-            if (e1 == null || e2 == null
-                    || e1.scope == null || e2.scope == null)
+            if(e1 == null || e2 == null
+                || e1.scope == null || e2.scope == null)
                 throw new NullPointerException();
             String path1 = e1.scope.getPath();
             String path2 = e2.scope.getPath();
-            if (path1 == ANY_PATH || path2 == ANY_PATH) return 0;
+            if(path1 == ANY_PATH || path2 == ANY_PATH) return 0;
             return path1.compareTo(path2);
         }
 
@@ -168,31 +171,31 @@ class HTTPAuthStore implements Serializable
     public HTTPAuthStore(boolean isdefault)
     {
         this.isdefault = isdefault;
-        if (!isdefault) this.defaults = HTTPAuthStore.DEFAULTS;
+        if(!isdefault) this.defaults = HTTPAuthStore.DEFAULTS;
 
         this.rows = new ArrayList<Entry>();
 
-        if (isdefault) {
+        if(isdefault) {
             // For back compatibility, check some system properties
             // and add appropriate entries
             // 1. ESG keystore support
             String kpath = System.getProperty("keystore");
-            if (kpath != null) {
+            if(kpath != null) {
                 String tpath = System.getProperty("truststore");
                 String kpwd = System.getProperty("keystorepassword");
                 String tpwd = System.getProperty("truststorepassword");
                 kpath = kpath.trim();
-                if (tpath != null) tpath = tpath.trim();
-                if (kpwd != null) kpwd = kpwd.trim();
-                if (tpwd != null) tpwd = tpwd.trim();
-                if (kpath.length() == 0) kpath = null;
-                if (tpath.length() == 0) tpath = null;
-                if (kpwd.length() == 0) kpwd = null;
-                if (tpwd.length() == 0) tpwd = null;
+                if(tpath != null) tpath = tpath.trim();
+                if(kpwd != null) kpwd = kpwd.trim();
+                if(tpwd != null) tpwd = tpwd.trim();
+                if(kpath.length() == 0) kpath = null;
+                if(tpath.length() == 0) tpath = null;
+                if(kpwd.length() == 0) kpwd = null;
+                if(tpwd.length() == 0) tpwd = null;
 
                 CredentialsProvider creds = new HTTPSSLProvider(kpath, kpwd, tpath, tpwd);
                 try {
-                    HTTPAuthScope scope = new HTTPAuthScope(ANY_HOST, ANY_PORT, ANY_REALM, HTTPAuthScheme.SSL.getSchemeName());
+                    HTTPAuthScope scope = new HTTPAuthScope(ANY_HOST, ANY_PORT, ANY_REALM, HTTPAuthPolicy.SSL);
                     insert(new Entry(scope, creds));
                 } catch (HTTPException he) {
                     log.error("HTTPAuthStore: could not insert default SSL data");
@@ -213,7 +216,7 @@ class HTTPAuthStore implements Serializable
 
     synchronized public CredentialsProvider
     insert(HTTPAuthScope scope, CredentialsProvider provider)
-            throws HTTPException
+        throws HTTPException
     {
         return insert(new Entry(scope, provider));
     }
@@ -224,22 +227,22 @@ class HTTPAuthStore implements Serializable
      */
     synchronized public CredentialsProvider
     insert(Entry entry)
-            throws HTTPException
+        throws HTTPException
     {
         Entry found = null;
 
-        if (entry == null)
+        if(entry == null)
             throw new HTTPException("HTTPAuthStore.insert: invalid entry: " + entry);
 
-        for (Entry e : rows) {
-            if (equivalent(e, entry)) {
+        for(Entry e : rows) {
+            if(equivalent(e, entry)) {
                 found = e;
                 break;
             }
         }
         // If the entry already exists, then overwrite it and return old
         CredentialsProvider old = null;
-        if (found != null) {
+        if(found != null) {
             old = entry.provider;
             found.provider = entry.provider;
         } else {
@@ -256,20 +259,20 @@ class HTTPAuthStore implements Serializable
 
     synchronized public Entry
     remove(Entry entry)
-            throws HTTPException
+        throws HTTPException
     {
         Entry found = null;
 
-        if (entry == null)
+        if(entry == null)
             throw new HTTPException("HTTPAuthStore.remove: invalid entry: " + entry);
 
-        for (Entry e : rows) {
-            if (equivalent(e, entry)) {
+        for(Entry e : rows) {
+            if(equivalent(e, entry)) {
                 found = e;
                 break;
             }
         }
-        if (found != null) rows.remove(found);
+        if(found != null) rows.remove(found);
         return (found);
     }
 
@@ -277,7 +280,7 @@ class HTTPAuthStore implements Serializable
      * Remove all auth store entries
      */
     synchronized public void
-    clear() throws HTTPException
+    clear()
     {
         rows.clear();
     }
@@ -300,15 +303,20 @@ class HTTPAuthStore implements Serializable
     synchronized public List<Entry>
     search(HTTPAuthScope scope)
     {
-        List<Entry> matches = new ArrayList<Entry>();
+        List<Entry> matches;
+        if(defaults == null)
+            matches = new ArrayList<Entry>();
+        else
+            matches = defaults.search(scope);
 
-        if (scope == null || !scope.valid() || rows.size() == 0)
+        if(scope == null || !scope.valid() || rows.size() == 0)
             return matches;
 
-        for (Entry e : rows) {
-            if (HTTPAuthScope.equivalent(scope, e.scope))
+        for(Entry e : rows) {
+            if(HTTPAuthScope.equivalent(scope, e.scope))
                 matches.add(e);
         }
+
         Collections.sort(matches, new Compare());
         return matches;
     }
@@ -329,18 +337,18 @@ class HTTPAuthStore implements Serializable
     acquirewriteaccess() throws HTTPException
     {
         nwriters++;
-        while (nwriters > 1) {
+        while(nwriters > 1) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
-        while (nreaders > 0) {
+        while(nreaders > 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
     }
@@ -356,11 +364,11 @@ class HTTPAuthStore implements Serializable
     acquirereadaccess() throws HTTPException
     {
         nreaders++;
-        while (nwriters > 0) {
+        while(nwriters > 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
     }
@@ -369,25 +377,31 @@ class HTTPAuthStore implements Serializable
     releasereadaccess()
     {
         nreaders--;
-        if (nreaders == 0) notify(); //only affects writers
+        if(nreaders == 0) notify(); //only affects writers
     }
 
     //////////////////////////////////////////////////
     // Credentials cache
 
-    static protected class Pair
+    static public class Pair
     {
-        AuthScope scope;
+        HTTPAuthScope scope;
         Credentials creds;
 
-        Pair(AuthScope scope, Credentials creds)
+        Pair(HTTPAuthScope scope, Credentials creds)
         {
             this.scope = scope;
             this.creds = creds;
         }
+
+        public String toString()
+        {
+            return "(" + this.scope.toString() + "," + creds.toString() + ")";
+        }
     }
 
     protected List<Pair> cache = new ArrayList<Pair>();
+    static public List<Pair> testlist = null;
 
     /**
      * Insert a credentials into the cache; will return
@@ -398,18 +412,25 @@ class HTTPAuthStore implements Serializable
      * @return the old credentials object if overwriting, else null
      */
     public synchronized Credentials
-    setCredentials(AuthScope scope, Credentials creds)
+    cacheCredentials(AuthScope scope, Credentials creds)
     {
         Pair p = null;
         Credentials old = null;
+
+        HTTPAuthScope ascope;
+        if(scope instanceof HTTPAuthScope)
+            ascope = (HTTPAuthScope) scope;
+        else
+            ascope = new HTTPAuthScope(scope);
+
         int index = cache.indexOf(scope);
-        if (index >= 0) {
-            p = cache.get(index);
+        if(index >= 0) {
+            p = this.cache.get(index);
             old = p.creds;
             p.creds = creds;
         } else {
-            p = new Pair(scope, creds);
-            cache.add(p);
+            p = new Pair(ascope, creds);
+            this.cache.add(p);
         }
         return old;
     }
@@ -423,29 +444,56 @@ class HTTPAuthStore implements Serializable
     synchronized public Credentials
     getCredentials(AuthScope scope)
     {
-        for(Pair p: cache) {
-            if(p.scope.equals(scope))
-                return p.creds;
+        HTTPAuthScope ascope;
+        Credentials creds = null;
+        if(scope instanceof HTTPAuthScope)
+            ascope = (HTTPAuthScope) scope;
+        else
+            ascope = new HTTPAuthScope(scope);
+        for(Pair p : this.cache) {
+            if(p.scope.equals(scope)) {
+                creds = p.creds;
+                break;
+            }
         }
-        if(defaults != null)
-            return defaults.getCredentials(scope);
-        return null;
+        if(creds == null && defaults != null)
+            creds = defaults.getCredentials(scope);
+        return creds;
     }
 
     /**
-     * Clear the credentials cache
+     * Clear some entries matching the argument
      */
-    synchronized public void
-    clearCredentialsCache()
+    synchronized public void // public only to allow testing
+    invalidate(HTTPAuthScope scope)
     {
-        cache.clear();
+        if(TESTING) {
+	    if(testlist == null) testlist = new ArrayList<Pair>();
+            if(scope == null) {
+                testlist.clear();
+		return;
+	    }
+        }
+        // walk backward because we are removing entries
+        for(int i = cache.size() - 1;i >= 0;i--) {
+            Pair p = cache.get(i);
+            if(HTTPAuthScope.equivalent(scope, p.scope))  {
+                if(TESTING) {
+                    System.err.println("invalidating: " + p);
+                    if(testlist == null)
+                        testlist = new ArrayList<Pair>();
+                    testlist.add(p);
+                    cache.remove(i);
+                }
+            }
+        }
     }
 
     public Map<AuthScope, Credentials>// for testing
     getCache()
     {
         Map<AuthScope, Credentials> map = new HashMap<AuthScope, Credentials>();
-        for (Pair p : cache) {
+        for(Pair p : cache) {
             map.put(p.scope, p.creds);
         }
         return map;
@@ -456,17 +504,17 @@ class HTTPAuthStore implements Serializable
 
     public void
     print(PrintStream p)
-            throws IOException
+        throws IOException
     {
         print(new PrintWriter(p, true));
     }
 
     public void
     print(PrintWriter p)
-            throws IOException
+        throws IOException
     {
         List<Entry> elist = getAllRows();
-        for (int i = 0; i < elist.size(); i++) {
+        for(int i = 0;i < elist.size();i++) {
             Entry e = elist.get(i);
             p.printf("[%02d] %s\n", e.toString());
         }
@@ -478,7 +526,7 @@ class HTTPAuthStore implements Serializable
 
     public void
     serialize(OutputStream ostream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         try {
 
@@ -499,14 +547,14 @@ class HTTPAuthStore implements Serializable
 
             oos.writeInt(getAllRows().size());
 
-            for (Entry e : rows) {
+            for(Entry e : rows) {
                 oos.writeObject(e);
             }
 
             oos.writeInt(cache.size());
 
             // append the credentials cache
-            for (Pair p : cache) {
+            for(Pair p : cache) {
                 oos.writeObject(p.scope);
                 oos.writeObject(p.creds);
             }
@@ -522,21 +570,21 @@ class HTTPAuthStore implements Serializable
 
     public void
     deserialize(InputStream istream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         ObjectInputStream ois = null;
         try {
             ois = openobjectstream(istream, password);
             List<Entry> entries = getDeserializedEntries(ois);
-            for (Entry e : entries) {
+            for(Entry e : entries) {
                 insert(e);
             }
             List<Pair> local = getDeserializedCache(ois);
-            for (Pair p : cache) {
-                setCredentials(p.scope, p.creds);
+            for(Pair p : cache) {
+                cacheCredentials(p.scope, p.creds);
             }
         } finally {
-            if (ois != null) try {
+            if(ois != null) try {
                 ois.close();
             } catch (IOException e) {/*ignore*/}
         }
@@ -544,7 +592,7 @@ class HTTPAuthStore implements Serializable
 
     static public ObjectInputStream  // public to allow testing
     openobjectstream(InputStream istream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             // Create Key
@@ -569,7 +617,7 @@ class HTTPAuthStore implements Serializable
 
     static public HTTPAuthStore    // public to allow testing
     getDeserializedStore(ObjectInputStream ois)
-            throws HTTPException
+        throws HTTPException
     {
         List<Entry> entries = getDeserializedEntries(ois);
         List<Pair> cache = getDeserializedCache(ois);
@@ -581,12 +629,12 @@ class HTTPAuthStore implements Serializable
 
     static protected List<Entry>    // public to allow testing
     getDeserializedEntries(ObjectInputStream ois)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             List<Entry> entries = new ArrayList<Entry>();
             int count = ois.readInt();
-            for (int i = 0; i < count; i++) {
+            for(int i = 0;i < count;i++) {
                 Entry e = (Entry) ois.readObject();
                 entries.add(e);
             }
@@ -598,19 +646,21 @@ class HTTPAuthStore implements Serializable
 
     static protected List<Pair>      // public to allow testing
     getDeserializedCache(ObjectInputStream ois)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             List<Pair> local = new ArrayList<Pair>();
 
             int count = ois.readInt();
-            for (int i = 0; i < count; i++) {
+            for(int i = 0;i < count;i++) {
                 AuthScope as = (AuthScope) ois.readObject();
-                if (as == null)
+                if(as == null)
                     break;
+                HTTPAuthScope has = (as instanceof HTTPAuthScope?(HTTPAuthScope)as
+                                                                : new HTTPAuthScope(as)) ;
                 Credentials cred = (Credentials) ois.readObject();
-                if (cred == null) break;
-                local.add(new Pair(as, cred));
+                if(cred == null) break;
+                local.add(new Pair(has, cred));
             }
             return local;
         } catch (Exception e) {

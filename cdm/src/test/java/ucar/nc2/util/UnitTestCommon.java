@@ -224,5 +224,22 @@ public class UnitTestCommon extends TestCase
     {
         assert true;
     }
+
+
+    static public byte[]
+    readbinaryfile(InputStream stream)
+        throws IOException
+    {
+        // Extract the stream into a bytebuffer
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        byte[] tmp = new byte[1 << 16];
+        for(;;) {
+            int cnt;
+            cnt = stream.read(tmp);
+            if(cnt <= 0) break;
+            bytes.write(tmp, 0, cnt);
+        }
+        return bytes.toByteArray();
+    }
 }
 
