@@ -227,7 +227,7 @@ class HTTPAuthStore implements Serializable
      */
     synchronized public CredentialsProvider
     insert(Entry entry)
-            throws HTTPException
+        throws HTTPException
     {
         Entry found = null;
 
@@ -259,7 +259,7 @@ class HTTPAuthStore implements Serializable
 
     synchronized public Entry
     remove(Entry entry)
-            throws HTTPException
+        throws HTTPException
     {
         Entry found = null;
 
@@ -337,18 +337,18 @@ class HTTPAuthStore implements Serializable
     acquirewriteaccess() throws HTTPException
     {
         nwriters++;
-        while (nwriters > 1) {
+        while(nwriters > 1) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
-        while (nreaders > 0) {
+        while(nreaders > 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
     }
@@ -364,11 +364,11 @@ class HTTPAuthStore implements Serializable
     acquirereadaccess() throws HTTPException
     {
         nreaders++;
-        while (nwriters > 0) {
+        while(nwriters > 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                if (stop) throw new HTTPException("interrupted");
+                if(stop) throw new HTTPException("interrupted");
             }
         }
     }
@@ -377,7 +377,7 @@ class HTTPAuthStore implements Serializable
     releasereadaccess()
     {
         nreaders--;
-        if (nreaders == 0) notify(); //only affects writers
+        if(nreaders == 0) notify(); //only affects writers
     }
 
     //////////////////////////////////////////////////
@@ -504,17 +504,17 @@ class HTTPAuthStore implements Serializable
 
     public void
     print(PrintStream p)
-            throws IOException
+        throws IOException
     {
         print(new PrintWriter(p, true));
     }
 
     public void
     print(PrintWriter p)
-            throws IOException
+        throws IOException
     {
         List<Entry> elist = getAllRows();
-        for (int i = 0; i < elist.size(); i++) {
+        for(int i = 0;i < elist.size();i++) {
             Entry e = elist.get(i);
             p.printf("[%02d] %s\n", e.toString());
         }
@@ -526,7 +526,7 @@ class HTTPAuthStore implements Serializable
 
     public void
     serialize(OutputStream ostream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         try {
 
@@ -547,7 +547,7 @@ class HTTPAuthStore implements Serializable
 
             oos.writeInt(getAllRows().size());
 
-            for (Entry e : rows) {
+            for(Entry e : rows) {
                 oos.writeObject(e);
             }
 
@@ -570,13 +570,13 @@ class HTTPAuthStore implements Serializable
 
     public void
     deserialize(InputStream istream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         ObjectInputStream ois = null;
         try {
             ois = openobjectstream(istream, password);
             List<Entry> entries = getDeserializedEntries(ois);
-            for (Entry e : entries) {
+            for(Entry e : entries) {
                 insert(e);
             }
             List<Pair> local = getDeserializedCache(ois);
@@ -584,7 +584,7 @@ class HTTPAuthStore implements Serializable
                 cacheCredentials(p.scope, p.creds);
             }
         } finally {
-            if (ois != null) try {
+            if(ois != null) try {
                 ois.close();
             } catch (IOException e) {/*ignore*/}
         }
@@ -592,7 +592,7 @@ class HTTPAuthStore implements Serializable
 
     static public ObjectInputStream  // public to allow testing
     openobjectstream(InputStream istream, String password)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             // Create Key
@@ -629,12 +629,12 @@ class HTTPAuthStore implements Serializable
 
     static protected List<Entry>    // public to allow testing
     getDeserializedEntries(ObjectInputStream ois)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             List<Entry> entries = new ArrayList<Entry>();
             int count = ois.readInt();
-            for (int i = 0; i < count; i++) {
+            for(int i = 0;i < count;i++) {
                 Entry e = (Entry) ois.readObject();
                 entries.add(e);
             }
@@ -646,7 +646,7 @@ class HTTPAuthStore implements Serializable
 
     static protected List<Pair>      // public to allow testing
     getDeserializedCache(ObjectInputStream ois)
-            throws HTTPException
+        throws HTTPException
     {
         try {
             List<Pair> local = new ArrayList<Pair>();

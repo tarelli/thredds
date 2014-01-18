@@ -793,13 +793,13 @@ public class HTTPMethod
      */
     static protected boolean compatibleURL(String u1, String u2)
     {
-        if (u1 == u2) return true;
-        if (u1 == null) return false;
-        if (u2 == null) return false;
+        if(u1 == u2) return true;
+        if(u1 == null) return false;
+        if(u2 == null) return false;
 
-        if (u1.equals(u2)
-                || u1.startsWith(u2)
-                || u2.startsWith(u1)) return true;
+        if(u1.equals(u2)
+            || u1.startsWith(u2)
+            || u2.startsWith(u1)) return true;
 
         // Check piece by piece
         URI uu1;
@@ -830,8 +830,8 @@ public class HTTPMethod
         // protocols comparison
         String s1 = uu1.getScheme();
         String s2 = uu2.getScheme();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !s1.equals(s2))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !s1.equals(s2))
             return false;
 
         // Match user info; differs from table above
@@ -842,19 +842,19 @@ public class HTTPMethod
         // !null !null  match = s1.equals(s2)
         s1 = uu1.getUserInfo();
         s2 = uu2.getUserInfo();
-        if (s1 != null
-                && (s2 == null || !s1.equals(s2)))
+        if(s1 != null
+            && (s2 == null || !s1.equals(s2)))
             return false;
 
         // hosts must be same
         s1 = uu1.getHost();
         s2 = uu2.getHost();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !s1.equals(s2))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !s1.equals(s2))
             return false;
 
         // ports must be the same
-        if (uu1.getPort() != uu2.getPort())
+        if(uu1.getPort() != uu2.getPort())
             return false;
 
         // paths must have prefix relationship
@@ -867,8 +867,8 @@ public class HTTPMethod
         // !null !null  match = (s1.startsWith(s2)||s2.startsWith(s1))
         s1 = uu1.getRawPath();
         s2 = uu2.getRawPath();
-        if ((s1 != null || s2 != null)
-                && s1 != null && s2 != null && !(s1.startsWith(s2) || s2.startsWith(s1)))
+        if((s1 != null || s2 != null)
+            && s1 != null && s2 != null && !(s1.startsWith(s2) || s2.startsWith(s1)))
             return false;
 
         return true;
