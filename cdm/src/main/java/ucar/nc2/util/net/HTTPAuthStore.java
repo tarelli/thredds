@@ -70,7 +70,12 @@ import static ucar.nc2.util.net.HTTPAuthScope.*;
  * the specific dataset [Wonder why this did not occur to them?].
  * <p/>
  * In any case, for Apache httpclient 4.2.x, the authstore
- * now also holds a credentials cach.
+ * now also holds a credentials cache.
+ * Previously, the cache was per-session, but this
+ * turn out to be a mistake because the opendap code
+ * repeatedly calls the server in checkifdods() with
+ * a new HTTPSession, so we get repeated requests to
+ * the credentials provider.
  */
 
 class HTTPAuthStore implements Serializable
@@ -400,8 +405,8 @@ class HTTPAuthStore implements Serializable
         }
     }
 
-    protected List<Pair> cache = new ArrayList<Pair>();
-    static public List<Pair> testlist = null;
+    static protected List<Pair> cache = new ArrayList<Pair>();
+    static public List<Pair> testlist = null; // for testing
 
     /**
      * Insert a credentials into the cache; will return
@@ -411,7 +416,7 @@ class HTTPAuthStore implements Serializable
      * @param creds the credentials object associated with this key
      * @return the old credentials object if overwriting, else null
      */
-    public synchronized Credentials
+    static public synchronized Credentials
     cacheCredentials(AuthScope scope, Credentials creds)
     {
         Pair p = null;
@@ -425,12 +430,12 @@ class HTTPAuthStore implements Serializable
 
         int index = cache.indexOf(scope);
         if(index >= 0) {
-            p = this.cache.get(index);
+            p = cache.get(index);
             old = p.creds;
             p.creds = creds;
         } else {
             p = new Pair(ascope, creds);
-            this.cache.add(p);
+            cache.add(p);
         }
         return old;
     }
@@ -441,7 +446,7 @@ class HTTPAuthStore implements Serializable
      * @param scope the key for retrieving a credentials object.
      * @return the matching credentials object, else null
      */
-    synchronized public Credentials
+    static synchronized public Credentials
     getCredentials(AuthScope scope)
     {
         HTTPAuthScope ascope;
@@ -450,21 +455,19 @@ class HTTPAuthStore implements Serializable
             ascope = (HTTPAuthScope) scope;
         else
             ascope = new HTTPAuthScope(scope);
-        for(Pair p : this.cache) {
+        for(Pair p : cache) {
             if(p.scope.equals(scope)) {
                 creds = p.creds;
                 break;
             }
         }
-        if(creds == null && defaults != null)
-            creds = defaults.getCredentials(scope);
         return creds;
     }
 
     /**
      * Clear some entries matching the argument
      */
-    synchronized public void // public only to allow testing
+    static synchronized public void // public only to allow testing
     invalidate(HTTPAuthScope scope)
     {
         if(TESTING) {
@@ -489,14 +492,15 @@ class HTTPAuthStore implements Serializable
         }
     }
 
-    public Map<AuthScope, Credentials>// for testing
+    static public List<Pair>// for testing
     getCache()
     {
-        Map<AuthScope, Credentials> map = new HashMap<AuthScope, Credentials>();
+        List<Pair> localcache = new ArrayList<Pair>();
         for(Pair p : cache) {
-            map.put(p.scope, p.creds);
+	    Pair newp = new Pair(p.scope,p.creds);
+	    localcache.add(newp);
         }
-        return map;
+        return localcache;
     }
 
     ///////////////////////////////////////////////////
@@ -620,10 +624,8 @@ class HTTPAuthStore implements Serializable
         throws HTTPException
     {
         List<Entry> entries = getDeserializedEntries(ois);
-        List<Pair> cache = getDeserializedCache(ois);
         HTTPAuthStore store = new HTTPAuthStore();
         store.rows = entries;
-        store.cache = cache;
         return store;
     }
 
