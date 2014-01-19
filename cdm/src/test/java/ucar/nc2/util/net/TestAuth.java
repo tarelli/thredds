@@ -321,54 +321,6 @@ public class TestAuth extends UnitTestCommon
         }
     }
 
-    @Test
-    public void
-    testBasic3() throws Exception
-    {
-        System.err.println("*** Testing: Cache Invalidation");
-        for(AuthDataBasic data : basictests) {
-            // Do each test with a bad password to cause cache invalidation
-            TestProvider provider = new TestProvider(data.user, BADPASSWORD);
-            System.err.println("*** URL: " + data.url);
-
-            HTTPSession session = HTTPFactory.newSession(data.url);
-            session.setCredentialsProvider(provider);
-            HTTPMethod method = HTTPFactory.Get(session);
-            int status = method.execute();
-
-            System.err.printf("\tlocal provider: status code = %d\n", status);
-
-            assertTrue(status == 401); // must fail.
-
-            // Verify that getCredentials was called only once
-            assertTrue("Credentials provider called: " + provider.callcount,
-                provider.callcount == 1);
-
-            // Look at the invalidation list
-            List<HTTPAuthStore.Pair> testlist = HTTPAuthStore.testlist;
-            if(testlist.size() == 1) {
-               HTTPAuthStore.Pair pair = testlist.get(0);
-               pass = (pair.scope.getScheme().equals(HTTPAuthPolicy.BASIC.toUpperCase())
-                       && pair.creds instanceof UsernamePasswordCredentials);
-            } else
-                pass = false;
-
-            if(pass) {
-                // retry with correct password
-                provider = new TestProvider(data.user, data.password);
-                session.setCredentialsProvider(provider);
-                method = HTTPFactory.Get(session);
-                status = method.execute();
-                assertTrue(status == 200);
-            }
-
-            if(pass)
-                assertTrue("testBasic", true);
-            else
-                assertTrue("testBasic", false);
-        }
-    }
-
     // This test is turned off until such time as thredds-test is properly set up
     @Test
     public void
