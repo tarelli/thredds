@@ -33,16 +33,42 @@
 
 package ucar.nc2.util.net;
 
-import org.apache.http.auth.Credentials;
-import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.params.AuthPolicy;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
-Define an interface that extends CredentialsProvider
-to provide a finer grain getCredentials method.
-*/
+ * HTTPAuthPolicy defines the set of currently supported schemes.
+ *
+ * @see AuthPolicy
+ */
 
-public interface  HTTPCredentialsProvider extends CredentialsProvider
+
+abstract public class HTTPAuthPolicy /* mimics AuthPolicy (AuthPolicy is final for some reason) */
 {
-    public Credentials getCredentials(HTTPAuthScope scope);
-    
+    public static final String BASIC = AuthPolicy.BASIC;
+    public static final String DIGEST = AuthPolicy.DIGEST;
+    public static final String NTLM = AuthPolicy.NTLM;
+    public static final String SSL = "SSL";
+    public static final String ANY = null;
+
+    protected static Set<String> legal;
+
+    static {
+        legal = new HashSet<String>();
+        legal.add(BASIC);
+        legal.add(DIGEST);
+        legal.add(NTLM);
+        legal.add(SSL);
+    }
+
+    // Define parameter names
+    static public final String PROVIDER = "HTTP.provider";
+
+    static public boolean validate(String scheme)
+    {
+        if(scheme == null) return false;
+        return legal.contains(scheme);
+    }
 }
