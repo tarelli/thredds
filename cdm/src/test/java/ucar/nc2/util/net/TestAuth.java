@@ -465,7 +465,8 @@ public class TestAuth extends UnitTestCommon
         // Read in auth store
         InputStream istream = new FileInputStream(target1);
         ObjectInputStream ois = HTTPAuthStore.openobjectstream(istream, "password1");
-        HTTPAuthStore newstore = HTTPAuthStore.getDeserializedStore(ois);
+        HTTPAuthStore newstore = HTTPAuthStore.getDeserializedStore(ois); // - cache
+        List<HTTPAuthStore.Pair> newcache = HTTPAuthStore.getDeserializedCache(ois);
 
         // compare
         List<HTTPAuthStore.Entry> rows = store.getAllRows();
@@ -493,16 +494,21 @@ public class TestAuth extends UnitTestCommon
         }
         assertTrue("test(De-)Serialize", ok);
 
-        Map<AuthScope, Credentials> cache = store.getCache();
+        List<HTTPAuthStore.Pair> cache = store.getCache();
         assertTrue("cache size mismatch", cache.size() == newstore.getCache().size());
         // compare (not that we cannot actually test credentials for equality, so test keys).
-        for(AuthScope key : cache.keySet()) {
-            Credentials creds = store.getCredentials(key);
-            Credentials newcreds = store.getCredentials(key);
-            assertTrue("missing key:" + key, newcreds != null);
-            assertTrue(String.format("Credentials class mismatch for %s: %s::%s",
-                key, creds.getClass(), newcreds.getClass()),
-                creds.getClass() == newcreds.getClass());
+        for(HTTPAuthStore.Pair p: cache) {
+            boolean found = false;
+            for(HTTPAuthStore.Pair newp: newcache) {
+                if(!p.scope.equals(newp))
+                    continue;
+                Credentials creds = p.creds;
+                Credentials newcreds = newp.creds;
+                assertTrue(String.format("Credentials class mismatch for %s: %s::%s",
+                    p.scope, creds.getClass(), newcreds.getClass()),
+                    creds.getClass() == newcreds.getClass());
+            }
+            assertTrue("Missing scope",found);
         }
     }
 
