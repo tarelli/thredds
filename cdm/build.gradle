@@ -1,102 +1,24 @@
-apply plugin: 'shadow'
 
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'cdm'
-    }
-}
-
-sourceSets {
-    main {
-        java {
-            exclude 'ucar/nc2/util/reflect/*.java'
-        }
-    }
-    test {
-       java {
-           exclude 'thredds/catalog2/**/*.java'
-       }
-    }
-
-    integrationTest {
-      java.srcDir file('src/integration-test/java')
-      resources.srcDir file('src/integration-test/resources')
-  }
-}
-
-task integrationTest(type: Test, dependsOn: jar) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    systemProperties['jar.path'] = jar.archivePath
-}
-
+description = 'CDM core library'
 dependencies {
   compile project(':udunits')
-  compile ('commons-httpclient:commons-httpclient:3.1')
-  compile 'com.google.protobuf:protobuf-java:2.5.0'
-  compile 'joda-time:joda-time:2.2'
-  compile 'net.jcip:jcip-annotations:1.0'
-  compile 'org.jdom:jdom2:2.0.4'
-  compile ('org.quartz-scheduler:quartz:2.2.0') {   // eliminate c3p0
-    transitive = false
-  }
-  compile group: 'org.slf4j', name: 'slf4j-api', version: slf4jVersion
-  runtime group: 'org.slf4j', name: 'jcl-over-slf4j', version: slf4jVersion
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.2.6'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version:'4.2.5'
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version:'4.2.6'
+    compile group: 'joda-time', name: 'joda-time', version:'2.2'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'org.jdom', name: 'jdom2', version:'2.0.4'
+    compile group: 'net.jcip', name: 'jcip-annotations', version:'1.0'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version:'2.2.0'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version:'2.5.0'
+    compile group: 'net.sf.ehcache', name: 'ehcache-core', version:'2.6.2'
+    compile group: 'com.sleepycat', name: 'je', version:'4.0.92'
+    runtime group: 'org.slf4j', name: 'jcl-over-slf4j', version:'1.7.5'
+    testCompile group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.5'
 }
 
-javadoc {
-  title = 'Public javadoc for netcdf-java version ' + version
-  source = fileTree(dir: 'src/main/java').matching {
-    include 'thredds/catalog/*.java'
-    include 'ucar/ma2/*.java'
-    include 'ucar/nc2/*.java'
-    include 'ucar/nc2/constants/*.java'
-    include 'ucar/nc2/dataset/**/*.java'
-    include 'ucar/nc2/dt/*.java'
-    include 'ucar/nc2/dt/grid/*.java'
-    include 'ucar/nc2/ft/*.java'
-    include 'ucar/nc2/ncml/*.java'
-    include 'ucar/nc2/time/*.java'
-    include 'ucar/nc2/units/*.java'
-    include 'ucar/nc2/util/*.java'
-    include 'ucar/unidata/**/*.java'
-    include 'ucar/units/*.java'
-  }
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
 }
-
-task releaseDocs(dependsOn: javadoc) << {
-  releaseDir = webdir + "javadoc"
-
-  ant.delete(dir: releaseDir)
-  ant.mkdir(dir: releaseDir)
-
-  copy {
-    println "copyDocs to " + releaseDir
-    from("build/docs/javadoc")
-    into releaseDir
-  }
-}
-
-/////////
-
-shadow {
-  outputFile = file("${destinationDir }/cdms-${version}.jar")
-  stats = true
-
-  exclude 'META-INF/*.DSA'
-  exclude 'META-INF/*.RSA'
-  exclude 'META-INF/NOTICE'
-  exclude 'META-INF/LICENSE'
-  exclude 'META-INF/*.txt'
-  exclude 'META-INF/*.xml'
-
-  artifactSet {
-      exclude 'commons-logging:commons-logging:*'
-  }
-
-  jar {
-    manifest {
-      attributes 'Main-Class': 'ucar.nc2.NCdumpW'
-    }
-  }
-}
+artifacts.archives packageTests

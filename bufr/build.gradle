@@ -1,15 +1,11 @@
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'bufr'
-    }
-}
 
+description = 'BUFR IOSP'
 dependencies {
   compile project(':cdm')
-  compile ('com.lexicalscope.jewelcli:jewelcli:0.8.5')
-  testCompile project(':cdm').sourceSets.test.output
-}
-
-task show {
-  println project(':cdm').sourceSets.test.output.each {println it}
+    compile group: 'org.jdom', name: 'jdom2', version:'2.0.4'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'net.jcip', name: 'jcip-annotations', version:'1.0'
+    compile group: 'com.lexicalscope.jewelcli', name: 'jewelcli', version:'0.8.5'
+  testCompile project(':cdm')
+    testCompile group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.5'
 }

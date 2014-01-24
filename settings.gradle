@@ -1,2 +1,38 @@
-include 'udunits', 'cdm', 'clcommon', 'bufr', 'grib', 'opendap', 'netcdf4', 'visad', 'ui', 'ncIdv',
-        'tdcommon', 'tdm', 'tds', 'cdm-test'
+rootProject.name = 'thredds-parent'
+include ':udunits'
+include ':cdm'
+include ':bufr'
+include ':grib'
+include ':opendap'
+include ':dts'
+include ':visadCdm'
+include ':ncIdv'
+include ':ui'
+include ':tdcommon'
+include ':tds'
+include ':tdm'
+include ':wmotables'
+include ':cdmvalidator'
+include ':cdm-test'
+include ':it'
+include ':netcdf4'
+include ':clcommon'
+
+project(':udunits').projectDir = "$rootDir/udunits" as File
+project(':cdm').projectDir = "$rootDir/cdm" as File
+project(':bufr').projectDir = "$rootDir/bufr" as File
+project(':grib').projectDir = "$rootDir/grib" as File
+project(':opendap').projectDir = "$rootDir/opendap" as File
+project(':dts').projectDir = "$rootDir/dts" as File
+project(':visadCdm').projectDir = "$rootDir/visad" as File
+project(':ncIdv').projectDir = "$rootDir/ncIdv" as File
+project(':ui').projectDir = "$rootDir/ui" as File
+project(':tdcommon').projectDir = "$rootDir/tdcommon" as File
+project(':tds').projectDir = "$rootDir/tds" as File
+project(':tdm').projectDir = "$rootDir/tdm" as File
+project(':wmotables').projectDir = "$rootDir/wmoTables" as File
+project(':cdmvalidator').projectDir = "$rootDir/cdmvalidator" as File
+project(':cdm-test').projectDir = "$rootDir/cdm-test" as File
+project(':it').projectDir = "$rootDir/it" as File
+project(':netcdf4').projectDir = "$rootDir/netcdf4" as File
+project(':clcommon').projectDir = "$rootDir/clcommon" as File

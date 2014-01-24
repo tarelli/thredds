@@ -1,55 +1,20 @@
-apply plugin: 'shadow'
-import org.gradle.api.plugins.shadow.transformers.AppendingTransformer
 
+description = 'THREDDS Data Manager (TDM)'
 dependencies {
   compile project(':cdm')
-  compile (project(':grib')) { transitive = false } // jsoup
+  compile project(':grib')
   compile project(':tdcommon')
-
-  compile group: 'org.springframework', name: 'spring-context', version: springVersion
-  compile group: 'org.springframework', name: 'spring-beans', version: springVersion
-
-  runtime group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4jVersion
-  runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4jVersion
-  runtime group: 'org.slf4j', name: 'jcl-over-slf4j', version: slf4jVersion
-}
-
-shadow {
-  outputFile = file("${destinationDir }/tdms-${version}.jar")
-  stats = true
-
-  exclude 'com/sleepycat/**'
-  exclude 'net/sf/**'
-  exclude 'org/quartz/**'
-  exclude 'META-INF/*.DSA'
-  exclude 'META-INF/*.RSA'
-  exclude 'META-INF/NOTICE'
-  exclude 'META-INF/LICENSE'
-  exclude 'META-INF/*.txt'
-  exclude 'META-INF/*.xml'
-
-  artifactSet {
-      exclude 'commons-logging:commons-logging:*'
-  }
-
-  jar {
-    manifest {
-      attributes 'Main-Class': 'thredds.tdm.TdmRunner'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.2.6'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version:'4.2.5'
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version:'4.2.6'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'org.jdom', name: 'jdom2', version:'2.0.4'
+    compile group: 'org.quartz-scheduler', name: 'quartz', version:'2.2.0'
+    compile(group: 'org.springframework', name: 'spring-core', version:'3.2.3.RELEASE') {
+exclude(module: 'commons-logging')
     }
-  }
-
-  transformer(AppendingTransformer) {
-      resource = 'META-INF/spring.handlers'
-   }
-   transformer(AppendingTransformer) {
-      resource = 'META-INF/spring.schemas'
-   }
-}
-
-task showClasspath << {
-   buildscript.configurations.classpath.each { println it }
-}
-
-task showMeCache << {
-  configurations.compile.each { println it }
+    compile group: 'org.springframework', name: 'spring-context', version:'3.2.3.RELEASE'
+    compile group: 'org.springframework', name: 'spring-beans', version:'3.2.3.RELEASE'
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:'2.0-beta9'
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.0-beta9'
 }

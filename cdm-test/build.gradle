@@ -1,16 +1,21 @@
 
+description = 'Test CDM (upc/share - Unidata only)'
 dependencies {
   compile project(':cdm')
-  compile project(':clcommon')
   compile project(':bufr')
+  compile project(':clcommon')
   compile project(':grib')
   compile project(':netcdf4')
-  compile (project(':opendap'))  { // eliminate servlet
-      transitive = false
-    }
-  compile (project(':visad'))
-  testCompile project(':cdm').sourceSets.test.output
+  compile project(':opendap')
+  compile project(':visadCdm')
+    testCompile group: 'edu.wisc.ssec', name: 'visad', version:'2.0-20130124'
+  testCompile project(':cdm')
+    testCompile group: 'org.slf4j', name: 'slf4j-jdk14', version:'1.7.5'
+    testCompile group: 'commons-io', name: 'commons-io', version:'2.4'
 }
 
-
-
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests

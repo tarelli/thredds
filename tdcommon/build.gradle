@@ -1,18 +1,13 @@
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'tdcommon'
-    }
-}
 
+description = 'server common utilities'
 dependencies {
   compile project(':cdm')
-
-  // logging should be a group
-  compile group: 'org.slf4j', name: 'slf4j-api', version:slf4jVersion
-  compile group: 'org.apache.logging.log4j', name: 'log4j-api', version:log4jVersion
-  compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:log4jVersion
-  compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:log4jVersion
-  compile (group: 'org.springframework', name: 'spring-core', version: springVersion)  {
-      exclude group: "commons-logging"
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version:'2.0-beta9'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.0-beta9'
+    compile group: 'org.jdom', name: 'jdom2', version:'2.0.4'
+    compile(group: 'org.springframework', name: 'spring-core', version:'3.2.3.RELEASE') {
+exclude(module: 'commons-logging')
     }
+    runtime group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version:'2.0-beta9'
 }

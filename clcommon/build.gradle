@@ -1,11 +1,9 @@
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'clcommon'
-    }
-}
 
+description = 'client side common library. java.awt dependencies'
 dependencies {
   compile project(':cdm')
-  compile 'com.sleepycat:je:4.0.92'
-  testCompile project(':cdm').sourceSets.test.output
+    compile group: 'net.jcip', name: 'jcip-annotations', version:'1.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'com.sleepycat', name: 'je', version:'4.0.92'
+  testCompile project(':cdm')
 }

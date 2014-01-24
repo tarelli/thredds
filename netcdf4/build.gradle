@@ -1,10 +1,8 @@
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'netcdf4'
-    }
-}
 
+description = 'netCDF-4 IOSP JNI connection to C library'
 dependencies {
   compile project(':cdm')
-  compile 'com.sun.jna:jna:3.0.9'
+    compile group: 'net.jcip', name: 'jcip-annotations', version:'1.0'
+    compile group: 'net.java.dev.jna', name: 'jna', version:'4.0.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
 }
