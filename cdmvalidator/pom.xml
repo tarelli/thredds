@@ -5,7 +5,11 @@
   <parent>
     <groupId>edu.ucar</groupId>
     <artifactId>thredds-parent</artifactId>
+<<<<<<< HEAD
     <version>4.4.3-SNAPSHOT</version>
+=======
+    <version>4.4.2</version>
+>>>>>>> [maven-release-plugin] prepare release v4.4.2
   </parent>
 
   <!-- ===========================================================
