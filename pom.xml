@@ -590,7 +590,6 @@
         <version>${javax.servlet.jstl.version}</version>
         <scope>runtime</scope>
       </dependency>
-
       <dependency>
         <groupId>json-taglib</groupId>
         <artifactId>json-taglib</artifactId>

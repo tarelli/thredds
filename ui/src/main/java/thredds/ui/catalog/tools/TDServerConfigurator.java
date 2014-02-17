@@ -38,7 +38,7 @@ import thredds.ui.catalog.CatalogTreeView;
 import ucar.nc2.ui.widget.*;
 import ucar.nc2.ui.widget.PopupMenu;
 import ucar.nc2.util.IO;
-import ucar.nc2.util.net.HttpClientManager;
+import ucar.httpclient.HttpClientManager;
 import ucar.unidata.util.StringUtil2;
 import ucar.util.prefs.PreferencesExt;
 import ucar.util.prefs.ui.ComboBox;
