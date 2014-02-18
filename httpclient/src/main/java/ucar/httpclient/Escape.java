@@ -48,78 +48,14 @@ public class Escape
 {
     public static final Charset utf8Charset = Charset.forName("UTF-8");
 
-    // Sets of ascii characters
-    protected static final String alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    protected static final String numeric = "0123456789";
-    protected static final String alphaNumeric = alpha + numeric;
-
-    // Experimentally determined url and query
-    // legal and illegal chars as defined by apache httpclient3
-    // Sets are larger than strictly necessary
-    protected static final String urllegal     = "!#$&'()*+,-./:;=?@_~";
-    protected static final String querylegal   = urllegal + "%";
-    protected static final String queryillegal = " \"<>[\\]^`{|}";
-    protected static final String urlillegal   = queryillegal + "%";
-
-    // Set of all ascii printable non-alphanumeric (aka nan) characters
-    protected static final String nonAlphaNumeric = " !\"#$%&'()*+,-./:;<=>?@[]\\^_`|{}~" ;
-
-    protected static final String queryReserved
-        = queryillegal; // special parsing meaning in queries
-    static protected  final String urlReserved
-        = urlillegal; // special parsing meaning in url
-
-    // We assume that whoever constructs a url (minus the query)
-    // has properly percent encoded whatever characters need to be encoded.
-    // Sets of characters absolutely DIS-allowed in url.
-    static private final String urlDisallowed  = urlReserved;
-
-    // Complement of urlDisallowed
-    static private final String urlAllowed = "\"%[\\]^`{|}<>";
+    // Sets of ascii characters of interest
 
     // This is set of legal characters that can appear unescaped in a url
-    static private final String _allowableInUrl= alphaNumeric + urlAllowed;
+    static protected final String _allowableInUrl = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$&'()*+,-./:;=?@_~";
 
-    // Sets of characters absolutely DIS-allowed in query string identifiers.
-    // Basically, this set is determined by what kind of query parsing needs to occur.
-    static private final String queryIdentDisallowed
-                                = queryReserved+"\"\\^`|<>[]{}";
-
-    // Complement of queryIdentDisallowed
-    static private final String queryIdentAllowed = nonAlphaNumeric+queryIdentDisallowed;
-
-    // This is set of legal characters that can appear unescaped in a url query.
-    static private final String _allowableInUrlQuery = alphaNumeric + queryIdentAllowed;
-
-    // Define the set of characters allowable in DAP Identifiers
-    static private final String dapSpecAllowed = "_!~*'-\"" ; //as specified in dap2 spec
-    static private final String _namAllowedInDAP = dapSpecAllowed
-                                                   + "./"; // for groups and structure names
-    static private final String _allowableInDAP = alphaNumeric + _namAllowedInDAP;
+    static protected final String _allowableInUrlQuery = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'()*+,-./:;=?@_~";
 
     static private final char _URIEscape = '%';
-
-
-    static {
-	System.err.println("alphaNumeric = "+alphaNumeric);
-	System.err.println("urllegal     = "+urllegal);
-	System.err.println("querylegal "+ =querylegal);
-	System.err.println("queryillegal = "+queryillegal);
-	System.err.println("urlillegal "+ =urlillegal);
-	System.err.println("nonAlphaNumeric = "+nonAlphaNumeric);
-	System.err.println("queryReserved = "+queryReserved);
-	System.err.println("urlReserved = "+urlReserved);
-	System.err.println("urlDisallowed  = "+urlDisallowed);
-	System.err.println("urlAllowed = "+urlAllowed);
-	System.err.println("_allowableInUrl= "+allowableInUrl);
-	System.err.println("queryIdentDisallowed = "+queryIdentDisallowed);
-	System.err.println("queryIdentAllowed = "+queryIdentAllowed);
-	System.err.println("_allowableInUrlQuery = "+_allowableInUrlQuery);
-	System.err.println("dapSpecAllowed = "+dapSpecAllowed);
-	System.err.println("_namAllowedInDAP = "+_namAllowedInDAP);
-	System.err.println("_allowableInDAP = "+_allowableInDAP);
-    }
-
 
     /**
      * Replace all characters in the String <code>in</code> not present in the String <code>allowable</code> with
@@ -368,3 +304,5 @@ public class Escape
      }
 
 }
+
+

@@ -91,7 +91,7 @@ abstract public class HTTPAuthScope
      * or they are string equals, then return true
      * else return false.
      */
-    static boolean equivalent(AuthScope a1, AuthScope a2)
+    static public boolean equivalent(AuthScope a1, AuthScope a2)
     {
         if(a1 == null || a2 == null)
             throw new NullPointerException();

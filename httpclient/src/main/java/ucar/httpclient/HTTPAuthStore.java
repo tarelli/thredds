@@ -64,7 +64,7 @@ import static ucar.httpclient.HTTPAuthScope.*;
  * <p/>
  */
 
-class HTTPAuthStore implements Serializable
+public class HTTPAuthStore implements Serializable
 {
     //////////////////////////////////////////////////////////////////////////
 

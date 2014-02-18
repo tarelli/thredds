@@ -136,7 +136,7 @@ public class TestHTTPSession extends UnitTestCommon
 
         // Use special interface to access the request
         AbstractHttpMessage dbgreq = (AbstractHttpMessage) method.debugRequest();
-        boolean b = dbgreq.getParams().getBooleanParameter(ALLOW_CIRCULAR_REDIRECTS, true);
+        boolean b = dbgreq.getParams().getBooleanParameter(HTTPSession.ALLOW_CIRCULAR_REDIRECTS, true);
         System.out.println("Test: Circular Redirects");
         assertTrue("*** Fail: Circular Redirects", b);
         System.out.println("*** Pass: Circular Redirects");
