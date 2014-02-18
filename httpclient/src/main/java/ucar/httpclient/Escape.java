@@ -99,7 +99,7 @@ public class Escape
 
     static private final char _URIEscape = '%';
 
-/*
+
     static {
 	System.err.println("alphaNumeric = "+alphaNumeric);
 	System.err.println("urllegal     = "+urllegal);
@@ -109,9 +109,9 @@ public class Escape
 	System.err.println("nonAlphaNumeric = "+nonAlphaNumeric);
 	System.err.println("queryReserved = "+queryReserved);
 	System.err.println("urlReserved = "+urlReserved);
-	System.err.println("urlDisallowed  = "+rlDisallowed);
+	System.err.println("urlDisallowed  = "+urlDisallowed);
 	System.err.println("urlAllowed = "+urlAllowed);
-	System.err.println("_allowableInUrl= alp_al"+owableInUrl=);
+	System.err.println("_allowableInUrl= "+allowableInUrl);
 	System.err.println("queryIdentDisallowed = "+queryIdentDisallowed);
 	System.err.println("queryIdentAllowed = "+queryIdentAllowed);
 	System.err.println("_allowableInUrlQuery = "+_allowableInUrlQuery);
@@ -119,7 +119,7 @@ public class Escape
 	System.err.println("_namAllowedInDAP = "+_namAllowedInDAP);
 	System.err.println("_allowableInDAP = "+_allowableInDAP);
     }
-    */
+
 
     /**
      * Replace all characters in the String <code>in</code> not present in the String <code>allowable</code> with
