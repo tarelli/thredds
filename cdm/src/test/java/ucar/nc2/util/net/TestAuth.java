@@ -33,6 +33,8 @@
 
 package ucar.nc2.util.net;
 
+import ucar.httpclient.*;
+
 import org.apache.http.auth.*;
 import org.apache.http.client.CredentialsProvider;
 import org.junit.Test;

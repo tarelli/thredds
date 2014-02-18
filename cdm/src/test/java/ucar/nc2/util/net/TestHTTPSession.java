@@ -32,6 +32,8 @@
 
 package ucar.nc2.util.net;
 
+import ucar.httpclient.*;
+
 import org.apache.http.*;
 import org.junit.Test;
 
