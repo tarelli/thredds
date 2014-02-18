@@ -36,7 +36,7 @@ package ucar.nc2.ui.widget;
 import thredds.catalog.*;
 import thredds.catalog.query.*;
 
-import ucar.httpclient.HttpClientManager;
+import ucar.nc2.util.net.HttpClientManager;
 import ucar.nc2.util.IO;
 import ucar.util.prefs.PreferencesExt;
 

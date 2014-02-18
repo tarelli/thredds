@@ -39,6 +39,7 @@ import thredds.logs.LogReader;
 import thredds.logs.LogCategorizer;
 import ucar.nc2.ui.widget.*;
 import ucar.nc2.util.IO;
+import ucar.nc2.util.net.HttpClientManager;
 import ucar.util.prefs.ui.ComboBox;
 import ucar.util.prefs.ui.Debug;
 import ucar.util.prefs.PreferencesExt;

@@ -311,6 +311,7 @@ public class EscapeStrings
      */
      static private final Pattern p
             = Pattern.compile("([\\w]+)://([.\\w]+(:[\\d]+)?)([/][^?#])?([?][^#]*)?([#].*)?");
+
      public static String escapeURL(String url)
      {
         String protocol = null;
