@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-package ucar.httpclient;
+package ucar.nc2.util.net;
 
 import junit.framework.TestCase;
 import org.apache.http.auth.*;

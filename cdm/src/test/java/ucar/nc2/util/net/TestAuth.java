@@ -31,7 +31,7 @@
  * WITH THE ACCESS, USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package ucar.httpclient;
+package ucar.nc2.util.net;
 
 import org.apache.http.auth.*;
 import org.apache.http.client.CredentialsProvider;

@@ -51,7 +51,7 @@ import edu.wisc.ssec.mcidas.LAMBnav;
 import edu.wisc.ssec.mcidas.TANCnav;
 
 import ucar.ma2.*;
-import ucar.httpclient.URLStreamHandlerFactory;
+import ucar.nc2.util.net.URLStreamHandlerFactory;
 
 import java.io.*;
 import java.lang.*;
