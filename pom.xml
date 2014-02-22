@@ -286,6 +286,17 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>dap4</artifactId>
+        <version>${project.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
       <!-- logging -->
       <dependency>
@@ -866,6 +877,7 @@
     <module>netcdf4</module>
     <module>clcommon</module>
     <module>httpclient</module>
+    <module>dap4</module>
   </modules>
 
   <properties>
