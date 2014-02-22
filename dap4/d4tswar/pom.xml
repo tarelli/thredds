@@ -5,6 +5,7 @@
 <modelVersion>4.0.0</modelVersion>
 
 <parent>
+<<<<<<< HEAD
   <groupId>edu.ucar</groupId>
   <artifactId>dap4</artifactId>
   <version>4.4.3-SNAPSHOT</version>
@@ -12,6 +13,15 @@
 
 <artifactId>d4tswar</artifactId>
 <version>4.4.3-SNAPSHOT</version>
+=======
+  <groupId>edu.ucar.dap4</groupId>
+  <artifactId>dap4</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</parent>
+
+<artifactId>d4tswar</artifactId>
+<version>1.0-SNAPSHOT</version>
+>>>>>>> add dap4
 
 <packaging>war</packaging>
 
