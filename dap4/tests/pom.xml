@@ -3,7 +3,6 @@
 <modelVersion>4.0.0</modelVersion>
 
 <parent>
-<<<<<<< HEAD
   <groupId>edu.ucar</groupId>
   <artifactId>dap4</artifactId>
   <version>4.4.3-SNAPSHOT</version>
@@ -11,15 +10,6 @@
 
 <artifactId>tests</artifactId>
 <version>4.4.3-SNAPSHOT</version>
-
-=======
-  <groupId>edu.ucar.dap4</groupId>
-  <artifactId>dap4</artifactId>
-  <version>1.0-SNAPSHOT</version>
-</parent>
-
-<artifactId>tests</artifactId>
->>>>>>> add dap4
 <packaging>jar</packaging>
 
 <dependencies>
@@ -106,17 +96,25 @@
     <artifactId>httpmime</artifactId>
   </dependency>
 <<<<<<< HEAD
+<<<<<<< HEAD
 <!--
 =======
 >>>>>>> add dap4
+=======
+<!--
+>>>>>>> cleanup
   <dependency>
     <groupId>net.jcip</groupId>
     <artifactId>jcip-annotations</artifactId>
   </dependency>
 <<<<<<< HEAD
+<<<<<<< HEAD
 -->
 =======
 >>>>>>> add dap4
+=======
+-->
+>>>>>>> cleanup
   <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-api</artifactId>
