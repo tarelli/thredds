@@ -41,7 +41,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import net.jcip.annotations.NotThreadSafe;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.methods.*;
@@ -155,7 +154,6 @@ import static ucar.httpclient.HTTPSession.*;
  * </ul>
  */
 
-@NotThreadSafe
 public class HTTPMethod
 {
     //////////////////////////////////////////////////

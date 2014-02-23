@@ -47,6 +47,11 @@
       <groupId>edu.ucar</groupId>
       <artifactId>visadCdm</artifactId>
     </dependency>
+    <dependency>
+      <groupId>edu.ucar</groupId>
+      <artifactId>cdmclient</artifactId>
+      <version>4.4.3-SNAPSHOT</version>	
+    </dependency>
 
     <dependency>
       <groupId>net.sf.ehcache</groupId>
@@ -221,6 +226,7 @@
                   <exclude>lucene:lucene</exclude>
                   <exclude>org.springframework:*</exclude>
                   <exclude>org.bounce:*</exclude>
+                  <exclude>edu.ucar:d4tswar</exclude>
                 </excludes>
               </artifactSet>
 

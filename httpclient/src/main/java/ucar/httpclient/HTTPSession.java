@@ -33,7 +33,6 @@
 
 package ucar.httpclient;
 
-import net.jcip.annotations.NotThreadSafe;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -102,7 +101,6 @@ import static ucar.httpclient.HTTPAuthScope.*;
  * constructions must specify a url.
  */
 
-@NotThreadSafe
 public class HTTPSession
 {
     //////////////////////////////////////////////////
