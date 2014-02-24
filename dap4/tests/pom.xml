@@ -44,26 +44,18 @@
       <groupId>edu.ucar</groupId>
       <artifactId>netcdf4</artifactId>
   </dependency>
-<<<<<<< HEAD
   <dependency>
       <groupId>edu.ucar</groupId>
       <artifactId>tds</artifactId>
   </dependency>
 
   <!-- testing dependencies -->
-<!--
-=======
-
-  <!-- testing dependencies -->
->>>>>>> add dap4
   <dependency>
     <groupId>junit</groupId>
     <artifactId>junit</artifactId>
     <version>4.8.1</version>
     <scope>test</scope>
   </dependency>
-<<<<<<< HEAD
--->
 
   <dependency>
     <groupId>org.springframework</groupId>
@@ -74,8 +66,6 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
   </dependency>
-=======
->>>>>>> add dap4
 
   <!-- library dependencies -->
   <dependency>
@@ -95,26 +85,6 @@
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpmime</artifactId>
   </dependency>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<!--
-=======
->>>>>>> add dap4
-=======
-<!--
->>>>>>> cleanup
-  <dependency>
-    <groupId>net.jcip</groupId>
-    <artifactId>jcip-annotations</artifactId>
-  </dependency>
-<<<<<<< HEAD
-<<<<<<< HEAD
--->
-=======
->>>>>>> add dap4
-=======
--->
->>>>>>> cleanup
   <dependency>
     <groupId>org.apache.logging.log4j</groupId>
     <artifactId>log4j-api</artifactId>
@@ -145,8 +115,6 @@
 
 </dependencies>
 
-<<<<<<< HEAD
-=======
 <build>
   <plugins>
 
@@ -183,7 +151,6 @@
   </plugins>
 
 </build>
->>>>>>> add dap4
 
 </project>
 

@@ -208,10 +208,7 @@ http://repo1.maven.org/maven2/
      2. a need to construct a number of products,for which maven
      requires a module for each product
 -->
-<<<<<<< HEAD
 
-=======
->>>>>>> cleanup
 <modules>
   <module>core</module>
   <module>dap4shared</module>
@@ -220,10 +217,6 @@ http://repo1.maven.org/maven2/
   <module>cdmclient</module>
   <module>servlet</module>
   <module>dap4servlet</module>
-<<<<<<< HEAD
-
-=======
->>>>>>> cleanup
   <module>d4ts</module>
   <module>tests</module>
   <module>d4tswar</module> 
@@ -277,7 +270,6 @@ http://repo1.maven.org/maven2/
   
 </properties>
   
-
 <build>
   <plugins>
       <plugin>
