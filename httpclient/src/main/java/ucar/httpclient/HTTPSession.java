@@ -571,6 +571,7 @@ public class HTTPSession
 
     protected AbstractHttpClient sessionClient = null;
     protected List<ucar.httpclient.HTTPMethod> methodList = new Vector<HTTPMethod>();
+    protected HttpContext execcontext = null; // same instance must be used for all methods
     protected String identifier = "Session";
     protected String legalurl = null;
     protected boolean closed = false;
@@ -661,13 +662,7 @@ public class HTTPSession
         return this.sessionClient;
     }
 
-    HTTPAuthStore
-    getAuthStore()
-    {
-        return this.authlocal;
-    }
-
-    HttpContext
+    HttpClient
     getExecutionContext()
     {
         return this.execcontext;
@@ -823,15 +818,7 @@ public class HTTPSession
     execute(HttpRequestBase request)
         throws IOException
     {
-        if(false)
-            return sessionClient.execute(request, this.execcontext);
-        else
-            return sessionClient.execute(request);
-    }
-
-    /*package*/ void invalidate(AuthScope scope)
-    {
-        HTTPCachingProvider.invalidate(scope);
+        return sessionClient.execute(request, this.execcontext);
     }
 
     //////////////////////////////////////////////////
