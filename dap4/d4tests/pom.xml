@@ -8,7 +8,7 @@
   <version>4.4.3-SNAPSHOT</version>
 </parent>
 
-<artifactId>tests</artifactId>
+<artifactId>d4tests</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 <packaging>jar</packaging>
 
@@ -16,19 +16,19 @@
 
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>d4core</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>cdmclient</artifactId>
+    <artifactId>d4cdmclient</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>dap4shared</artifactId>
+    <artifactId>d4shared</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>servlet</artifactId>
+    <artifactId>d4servletshared</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
@@ -46,7 +46,7 @@
   </dependency>
   <dependency>
       <groupId>edu.ucar</groupId>
-      <artifactId>tds</artifactId>
+      <artifactId>tdm</artifactId>
   </dependency>
 
   <!-- testing dependencies -->

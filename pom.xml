@@ -719,7 +719,7 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>tests</artifactId>
+        <artifactId>dap4tests</artifactId>
         <scope>test</scope>
         <type>test-jar</type>
         <version>${project.version}</version>

@@ -148,14 +148,18 @@ public class TestAuth extends UnitTestCommon
 
     // Define the test sets
 
-    int passcount = 0;
-    int xfailcount = 0;
-    int failcount = 0;
-    boolean verbose = true;
-    boolean pass = false;
+    protected int passcount = 0;
+    protected int xfailcount = 0;
+    protected int failcount = 0;
+    protected boolean verbose = true;
+    protected boolean pass = false;
 
-    String datadir = null;
-    String threddsroot = null;
+    protected String datadir = null;
+    protected String threddsroot = null;
+
+
+    //////////////////////////////////////////////////
+    // Constructor(s)
 
     public TestAuth(String name, String testdir)
     {
@@ -210,7 +214,7 @@ public class TestAuth extends UnitTestCommon
     }
 
     static AuthDataBasic[] basictests = {
-        new AuthDataBasic("http://thredds-test.ucar.edu/thredds/dodsC/restrict/testData.nc.html",
+        new AuthDataBasic("http://thredds-test.ucar.edu/thredds/dodsC/restrict/testData.nc.dds",
             "tiggeUser", "tigge"),
     };
 
@@ -224,6 +228,7 @@ public class TestAuth extends UnitTestCommon
     testBasic() throws Exception
     {
         System.out.println("*** Testing: Http Basic Password Authorization");
+        HTTPSession.debugHeaders();
 
         for(AuthDataBasic data : basictests) {
             TestProvider provider = new TestProvider(data.user, data.password);
@@ -259,9 +264,10 @@ public class TestAuth extends UnitTestCommon
 
     @Test
     public void
-    testBasic2() throws Exception
+    testBasicDirect() throws Exception
     {
         System.err.println("*** Testing: Http Basic Password Authorization Using direct credentials");
+        HTTPSession.debugHeaders();
 
         for(AuthDataBasic data : basictests) {
             Credentials cred = new UsernamePasswordCredentials(data.user, data.password);
@@ -269,6 +275,7 @@ public class TestAuth extends UnitTestCommon
             // Test local credentials provider
             HTTPSession session = HTTPFactory.newSession(data.url);
             session.setCredentials(HTTPAuthPolicy.BASIC, cred);
+
             HTTPMethod method = HTTPFactory.Get(session);
             int status = method.execute();
             System.err.printf("\tlocal provider: status code = %d\n", status);
@@ -296,7 +303,7 @@ public class TestAuth extends UnitTestCommon
 
     @Test
     public void
-    testBasic3() throws Exception
+    testCache() throws Exception
     {
         System.err.println("*** Testing: Cache Invalidation");
         // Clear the cache and the global authstore
@@ -345,15 +352,35 @@ public class TestAuth extends UnitTestCommon
         }
     }
 
+    @Test
+    public void
+    testDigest() throws Exception
+    {
+        System.err.println("*** Testing: Digest Policy");
+        // Clear the cache and the global authstore
+        HTTPAuthStore.DEFAULTS.clear();
+        HTTPCachingProvider.clearCache();
+        HTTPSession.debugHeaders();
+
+        for(AuthDataBasic data : basictests) {
+            Credentials cred = new UsernamePasswordCredentials(data.user, data.password);
+            System.err.println("*** URL: " + data.url);
+            HTTPSession session = HTTPFactory.newSession(data.url);
+            session.setCredentials(HTTPAuthPolicy.BASIC, cred);
+            HTTPMethod method = HTTPFactory.Get(session);
+            int status = method.execute();
+            System.err.printf("status code = %d\n", status);
+            System.err.flush();
+            pass = (status == 200 || status == 404); // non-existence is ok
+            assertTrue("testBasic", pass);
+        }
+    }
 
     public void
     XtestRedirect() throws Exception  // not used except for special testing
     {
         System.err.println("*** Testing: Http Basic Password Authorization with redirect");
-
-        UnitTestCommon.InterceptResponse respinterceptor = new UnitTestCommon.InterceptResponse();
-        UnitTestCommon.InterceptRequest reqinterceptor = new UnitTestCommon.InterceptRequest();
-        HTTPSession.debugGlobal(reqinterceptor, respinterceptor);
+        HTTPSession.debugHeaders();
 
         for(AuthDataBasic data : redirecttests) {
             Credentials cred = new UsernamePasswordCredentials(data.user, data.password);
@@ -363,14 +390,6 @@ public class TestAuth extends UnitTestCommon
             session.setCredentials(HTTPAuthPolicy.BASIC, cred);
             HTTPMethod method = HTTPFactory.Get(session);
             int status = method.execute();
-            Header[] reqhdrs = reqinterceptor.getHeaders();
-            Header[] resphdrs = respinterceptor.getHeaders();
-            for(Header hdr : reqhdrs) {
-                System.err.println("Request: " + hdr);
-            }
-            for(Header hdr : resphdrs) {
-                System.err.println("Response: " + hdr);
-            }
             System.err.printf("\tlocal provider: status code = %d\n", status);
             switch (status) {
             case 200:

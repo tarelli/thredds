@@ -22,7 +22,7 @@ will be needed to make this jar complete:
 </parent>
 
 <!--groupId>groupId</groupId-->
-<artifactId>dap4client</artifactId>
+<artifactId>d4client</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 
 <packaging>jar</packaging>
@@ -39,11 +39,11 @@ Dependencies: Mandatory dependencies are listed first. Then
 <dependencies>
     <dependency>
       <groupId>${project.groupid}</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>d4core</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupid}</groupId>
-      <artifactId>dap4shared</artifactId>
+      <artifactId>d4shared</artifactId>
     </dependency>
 
     <!-- Apache HttpClient -->

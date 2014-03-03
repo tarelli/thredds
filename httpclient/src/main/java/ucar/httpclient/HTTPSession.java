@@ -530,7 +530,7 @@ public class HTTPSession
                 trustpath, trustpassword);
             setGlobalCredentialsProvider(
                 new AuthScope(ANY_HOST, ANY_PORT, ANY_REALM, HTTPAuthPolicy.SSL),
-	        sslprovider);
+                sslprovider);
         }
     }
 
@@ -575,7 +575,6 @@ public class HTTPSession
     protected String identifier = "Session";
     protected String legalurl = null;
     protected boolean closed = false;
-    protected HttpContext execcontext = null; // same instance must be used for all methods
     protected Settings localsettings = new Settings();
     protected HTTPAuthStore authlocal = new HTTPAuthStore();
 
@@ -609,6 +608,12 @@ public class HTTPSession
 
     //////////////////////////////////////////////////
     // Accessor(s)
+
+    public HTTPAuthStore
+    getAuthStore()
+    {
+        return this.authlocal;
+    }
 
     public Settings getSettings()
     {
@@ -662,7 +667,7 @@ public class HTTPSession
         return this.sessionClient;
     }
 
-    HttpClient
+    HttpContext
     getExecutionContext()
     {
         return this.execcontext;
@@ -757,7 +762,7 @@ public class HTTPSession
     public void
     setCredentialsProvider(String scheme, CredentialsProvider provider)
     {
-        AuthScope scope = new AuthScope(ANY_HOST,ANY_PORT,ANY_REALM,scheme);
+        AuthScope scope = new AuthScope(ANY_HOST, ANY_PORT, ANY_REALM, scheme);
         setCredentialsProvider(scope, provider);
     }
 
@@ -818,7 +823,8 @@ public class HTTPSession
     execute(HttpRequestBase request)
         throws IOException
     {
-        return sessionClient.execute(request, this.execcontext);
+        HttpResponse response = sessionClient.execute(request, this.execcontext);
+        return response;
     }
 
     //////////////////////////////////////////////////
@@ -830,9 +836,9 @@ public class HTTPSession
     // all existing sessions because JUnit can run all
     // test within a single jvm.
     static List<HTTPSession> sessionList = null; // List of all HTTPSession instances
+
     // only used when testing flag is set
     static public boolean TESTING = false; // set to true during testing, should be false otherwise
-
 
     static protected synchronized void kill()
     {
@@ -884,7 +890,6 @@ public class HTTPSession
                 client.addResponseInterceptor(hi);
             }
         }
-
     }
 
     static public void debugGlobal(HttpRequestInterceptor ireq,

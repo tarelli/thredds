@@ -10,7 +10,7 @@
   <version>4.4.3-SNAPSHOT</version>
 </parent>
 
-<artifactId>dap4shared</artifactId>
+<artifactId>d4shared</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 
 <!-- ===========================================================
@@ -26,7 +26,7 @@ Dependencies: Mandatory dependencies are listed first. Then
 
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>d4core</artifactId>
   </dependency>
 
   <dependency>

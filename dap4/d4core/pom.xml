@@ -10,7 +10,7 @@
   <version>4.4.3-SNAPSHOT</version>
 </parent>
 
-<artifactId>core</artifactId>
+<artifactId>d4core</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 
 </project>

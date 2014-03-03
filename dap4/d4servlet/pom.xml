@@ -11,7 +11,7 @@
 </parent>
 
 <!--groupId>groupId</groupId-->
-<artifactId>dap4servlet</artifactId>
+<artifactId>d4servlet</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 
 <packaging>jar</packaging>
@@ -20,15 +20,15 @@
 
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>d4core</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>dap4shared</artifactId>
+    <artifactId>d4shared</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>servlet</artifactId>
+    <artifactId>d4servletshared</artifactId>
   </dependency>
 
   <!-- thredds dependencies -->

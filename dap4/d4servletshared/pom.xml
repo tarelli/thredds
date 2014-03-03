@@ -10,22 +10,22 @@
     <version>4.4.3-SNAPSHOT</version>
 </parent>
   
-<artifactId>servlet</artifactId>
+<artifactId>d4servletshared</artifactId>
 <version>4.4.3-SNAPSHOT</version>
   
 <dependencies>
     <!-- module dependencies -->
     <dependency>
       <groupId>${project.groupid}</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>d4core</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupid}</groupId>
-      <artifactId>dap4shared</artifactId>
+      <artifactId>d4shared</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupid}</groupId>
-      <artifactId>cdmshared</artifactId>
+      <artifactId>d4cdmshared</artifactId>
     </dependency>
   
     <!-- thredds/cdm dependencies -->

@@ -11,7 +11,7 @@
 </parent>
 
 <!--groupId>groupId</groupId-->
-<artifactId>cdmshared</artifactId>
+<artifactId>d4cdmshared</artifactId>
 <version>4.4.3-SNAPSHOT</version>
 
 <!-- ===========================================================
@@ -26,11 +26,11 @@ Dependencies: Mandatory dependencies are listed first. Then
 <dependencies>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>d4core</artifactId>
   </dependency>
   <dependency>
     <groupId>${project.groupid}</groupId>
-    <artifactId>dap4shared</artifactId>
+    <artifactId>d4shared</artifactId>
   </dependency>
 
   <!-- Servlet -->
